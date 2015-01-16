@@ -12,7 +12,7 @@ blacklist = ["anime", "asianamerican", "askhistorians", "askscience", "askreddit
 
 
 def main():
-    r = praw.Reddit("Links to reddit posts from other places in reddit", domain="api.reddit.com");
+    r = praw.Reddit("Links to reddit posts from other places in reddit", domain="api.reddit.com", log_requests=0);
     r.login(user, os.environ['REDDIT_PASS']);
     logging.info("Logged in and started linking");
 
@@ -25,7 +25,7 @@ def main():
     while True:
         if time.time() - last_checked > check_at:
             last_checked = time.time();
-            if count == 99999: # Testing
+            if count == 0: # Testing
                 pass;
             else:
                 logging.info("Linked " + str(count) + " in the last " + str((check_at * times_zero) / 60) + " minutes");
@@ -44,6 +44,9 @@ def link_subs(r, count, delay):
         #logging.info("Found submission to link (ID: " + submission.id + ")");
 
         if not is_comment(submission.url):
+            continue;
+
+        if submission.subreddit.display_name is "ModerationLog":
             continue;
 
         try:
@@ -111,7 +114,8 @@ def format_link(post):
 
 
 def np(link):
-    return "http://np.reddit.com" + link;
+    l = re.sub(r"http[s]?://[a-z]{0,3}\.?reddit\.com", "", link);
+    return "http://np.reddit.com" + l;
     # return re.sub(r"//[a-z]{0,3}\.?reddit", "//np.reddit", link);
 
 
