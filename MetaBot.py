@@ -63,8 +63,6 @@ def link_subs(r, count, delay):
             linked.append(linkedp);
             continue;  # Do not comment in blacklisted subreddits (reddit rules)
 
-        if linkedp.subredit
-
         linkedp.replace_more_comments(limit=None, threshold=0);
         # TODO: Make the bot edit it's comment on other links.
         commented = check_commented(linkedp);
