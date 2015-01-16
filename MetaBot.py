@@ -59,6 +59,7 @@ def link_subs(r, count, delay):
             linked.append(linkedp);
             continue;  # Do not comment in blacklisted subreddits (reddit rules)
 
+        linkedp.replace_more_comments(limit=None, threshold=0);
         # TODO: Make the bot edit it's comment on other links.
         commented = check_commented(linkedp);
 
@@ -98,7 +99,7 @@ This post has been linked to from another place on reddit. ([Info](/r/TotesMesse
     try:
         s.add_comment(comment.format(link=format_link(post)));
     except praw.errors.RateLimitExceeded:
-        logging.error("Cannot comment on post (comment karma is too low)");
+        logging.debug("Cannot comment on post (comment karma is too low)");
     except Exception as e:
         logging.error("Exception on comment add! (Submission ID: " + str(s.id) + ")");
         logging.error(str(e));
