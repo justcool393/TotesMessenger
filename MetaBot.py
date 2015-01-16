@@ -105,8 +105,7 @@ This post has been linked to from another place on reddit. ([Info](/r/TotesMesse
         logging.error(str(e));
 
 
-def format_link(post, other):
-    link = post.url;
+def format_link(post):
     srurl = post.subreddit.url;
     return u"- [" + srurl[:-1] + "] " + u"[" + post.title + "](" + np(post.permalink) + ")\n";
 
