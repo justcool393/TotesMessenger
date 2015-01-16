@@ -3,12 +3,13 @@ import logging, os, praw, re, time, sys;
 linked = [];
 user = os.environ['REDDIT_USER'];
 test_reddits = ["TMTest", "Test", "justcool393"];
-blacklist = ["anime", "asianamerican", "askhistorians", "askscience", "askreddit", "aww", "chicagosuburbs", "Bitcoin",
-             "benfrick", "bmw", "cosplay", "cumberbitches", "d3gf", "deer", "depression", "depthhub", "drinkingdollars",
-             "forwardsfromgrandma", "futurology", "geckos", "giraffes", "graphical_design", "grindsmygears",
-             "indianfetish", "misc", "mixedbreeds", "news", "newtotf2", "omaha", "petstacking", "pigs",
-             "politicaldiscussion", "politics", "programmingcirclejerk", "raerthdev", "rants", "salvia", "science",
-             "seiko", "shoplifting", "sketches", "sociopath", "suicidewatch", "talesfromtechsupport", "unitedkingdom"];
+blacklist = ["AdviceAnimals", "anime", "asianamerican", "askhistorians", "askscience", "askreddit", "aww",
+             "chicagosuburbs", "Bitcoin", "benfrick", "bmw", "cosplay", "cumberbitches", "d3gf", "deer", "depression",
+             "depthhub", "drinkingdollars", "forwardsfromgrandma", "futurology", "geckos", "giraffes",
+             "graphical_design", "grindsmygears", "indianfetish", "misc", "mixedbreeds", "news", "newtotf2", "omaha",
+             "petstacking", "pigs", "politicaldiscussion", "politics", "programmingcirclejerk", "raerthdev", "rants",
+             "salvia", "science", "seiko", "shoplifting", "sketches", "sociopath", "suicidewatch",
+             "talesfromtechsupport", "unitedkingdom"];
 
 
 def main():
@@ -134,7 +135,7 @@ def log_crash(e):
 def setup_logging():
     root = logging.getLogger();
     root.setLevel(logging.INFO);
-
+    logging.getLogger("requests").setLevel(logging.WARNING);
     ch = logging.StreamHandler(sys.stdout);
     ch.setLevel(logging.INFO);
 
