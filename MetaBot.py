@@ -41,10 +41,11 @@ def link_subs(r, count, delay):
 
         # if submission.subreddit not in test_reddits:  # For testing things
         #     continue;
-        logging.info("Found submission to link (ID: " + submission.id + ")");
+        #logging.info("Found submission to link (ID: " + submission.id + ")");
 
         if not is_comment(submission.url):
             continue;
+
         try:
             linkedp = get_linked(r, submission.url);
         except praw.errors.ClientException:
@@ -114,7 +115,7 @@ def np(link):
 
 
 def is_comment(link):
-    a = re.compile("\/r\/.{1,20}\/comments/.*");
+    a = re.compile("http[s]?://[a-z]{0,3}\.?reddit\.com/r/.{1,20}/comments/.*");
     return a.match(link);
 
 
