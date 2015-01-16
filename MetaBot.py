@@ -55,7 +55,7 @@ def link_subs(r, count, delay):
         if linkedp.id in linked:
             continue;
 
-        if linkedp.subreddit in blacklist:
+        if linkedp.subreddit.display_name in blacklist:
             linked.append(linkedp);
             continue;  # Do not comment in blacklisted subreddits (reddit rules)
 
@@ -67,7 +67,6 @@ def link_subs(r, count, delay):
             continue;
 
         # End to do
-        logging.info("Let's post meta bot msg");
         post(r, linkedp, submission);  # Hope it works
         linked_count += 1;
 
@@ -97,7 +96,7 @@ This post has been linked to from another place on reddit. ([Info](/r/TotesMesse
 
 {{link}}""";
     try:
-        s.add_comment(comment.format(link=format_link(post)), raise_captcha_exception=True);
+        s.add_comment(comment.format(link=format_link(post)));
     except praw.errors.RateLimitExceeded:
         logging.error("Cannot comment on post (comment karma is too low)");
     except Exception as e:
@@ -107,7 +106,7 @@ This post has been linked to from another place on reddit. ([Info](/r/TotesMesse
 
 def format_link(post):
     link = post.url;
-    return "- [/r/" + post.subreddit + "] " + "[" + post.title + "](" + np(link) + ")\n";
+    return "- [" + post.subreddit.url + "] " + "[" + post.title + "](" + np(link) + ")\n";
 
 
 def np(link):
