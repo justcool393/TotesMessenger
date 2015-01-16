@@ -107,7 +107,7 @@ This post has been linked to from another place on reddit. ([Info](/r/TotesMesse
 
 def format_link(post):
     link = post.url;
-    return "- [" + post.subreddit.url + "] " + "[" + post.title + "](" + np(link) + ")\n";
+    return u"- [" + post.subreddit.url + "] " + u"[" + post.title + "](" + np(link) + ")\n";
 
 
 def np(link):
