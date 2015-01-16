@@ -16,7 +16,7 @@ def main():
     r.login(user, os.environ['REDDIT_PASS']);
     logging.info("Logged in and started linking");
 
-    check_at = 3600;
+    check_at = 300;
     last_checked = 0;
     times_zero = 1;
 
@@ -25,7 +25,7 @@ def main():
     while True:
         if time.time() - last_checked > check_at:
             last_checked = time.time();
-            if count == 0:
+            if count == 99999: # Testing
                 pass;
             else:
                 logging.info("Linked " + str(count) + " in the last " + str((check_at * times_zero) / 60) + " minutes");
@@ -41,10 +41,11 @@ def link_subs(r, count, delay):
 
         if submission.subreddit not in test_reddits:  # For testing things
             continue;
+        logging.info("Found submission to link (ID: " + submission.id + ")");
 
         if not is_comment(submission.url):
             continue;
-
+        logging.info("is comment");
         try:
             linkedp = get_linked(r, submission.url);
         except praw.errors.ClientException:
@@ -66,8 +67,9 @@ def link_subs(r, count, delay):
             continue;
 
         # End to do
-
+        logging.info("Let's post meta bot msg");
         post(r, linkedp, submission);  # Hope it works
+        linked_count += 1;
 
     time.sleep(delay);
     return linked_count;
