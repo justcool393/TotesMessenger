@@ -3,8 +3,8 @@ import logging, os, praw, re, time, sys;
 linked = [];
 user = os.environ['REDDIT_USER'];
 test_reddits = ["TMTest", "Test", "justcool393"];
-blacklist = ["anime", "asianamerican", "askhistorians", "askscience", "askreddit", "aww", "chicagosuburbs", "benfrick",
-             "bmw", "cosplay", "cumberbitches", "d3gf", "deer", "depression", "depthhub", "drinkingdollars",
+blacklist = ["anime", "asianamerican", "askhistorians", "askscience", "askreddit", "aww", "chicagosuburbs", "Bitcoin",
+             "benfrick", "bmw", "cosplay", "cumberbitches", "d3gf", "deer", "depression", "depthhub", "drinkingdollars",
              "forwardsfromgrandma", "futurology", "geckos", "giraffes", "graphical_design", "grindsmygears",
              "indianfetish", "misc", "mixedbreeds", "news", "newtotf2", "omaha", "petstacking", "pigs",
              "politicaldiscussion", "politics", "programmingcirclejerk", "raerthdev", "rants", "salvia", "science",
@@ -39,13 +39,12 @@ def link_subs(r, count, delay):
     linked_count = 0;
     for submission in r.get_domain_listing('reddit.com', sort='new', limit=count):
 
-        if submission.subreddit not in test_reddits:  # For testing things
-            continue;
+        # if submission.subreddit not in test_reddits:  # For testing things
+        #     continue;
         logging.info("Found submission to link (ID: " + submission.id + ")");
 
         if not is_comment(submission.url):
             continue;
-        logging.info("is comment");
         try:
             linkedp = get_linked(r, submission.url);
         except praw.errors.ClientException:
@@ -98,12 +97,11 @@ This post has been linked to from another place on reddit. ([Info](/r/TotesMesse
 {{link}}""";
     try:
         s.add_comment(comment.format(link=format_link(post)), raise_captcha_exception=True);
-    except praw.errors.InvalidCaptcha:
+    except praw.errors.RateLimitExceeded:
         logging.error("Cannot comment on post (comment karma is too low)");
     except Exception as e:
         logging.error("Exception on comment add! (Submission ID: " + str(s.id) + ")");
         logging.error(str(e));
-        pass;
 
 
 def format_link(post):
