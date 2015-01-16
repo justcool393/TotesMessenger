@@ -92,7 +92,7 @@ def check_commented(s):
 
 
 def post(r, s, post):
-    comment = """
+    comment = u"""
 This post has been linked to from another place on reddit. ([Info](/r/TotesMessenger/wiki/))
 
 {link}""";
