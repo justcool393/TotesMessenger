@@ -94,7 +94,7 @@ def post(r, s, post):
     comment = """
 This post has been linked to from another place on reddit. ([Info](/r/TotesMessenger/wiki/))
 
-{{link}}""";
+{link}""";
     try:
         s.add_comment(comment.format(link=format_link(post)));
     except praw.errors.RateLimitExceeded:
