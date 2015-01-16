@@ -17,7 +17,7 @@ def main():
     r.login(user, os.environ['REDDIT_PASS']);
     logging.info("Logged in and started linking");
 
-    check_at = 300;
+    check_at = 3600;
     last_checked = 0;
     times_zero = 1;
 
@@ -26,8 +26,8 @@ def main():
     while True:
         if time.time() - last_checked > check_at:
             last_checked = time.time();
-            if count == 0: # Testing
-                pass;
+            if count == 0:
+                times_zero += 1;
             else:
                 logging.info("Linked " + str(count) + " in the last " + str((check_at * times_zero) / 60) + " minutes");
                 count = 0;
