@@ -4,7 +4,7 @@ linked = [];
 user = os.environ['REDDIT_USER'];
 test_reddits = ["TMTest", "Test", "justcool393"];
 blacklist = ["AdviceAnimals", "anime", "asianamerican", "askhistorians", "askscience", "askreddit", "aww",
-             "chicagosuburbs", "Bitcoin", "benfrick", "bmw", "cosplay", "cumberbitches", "d3gf", "deer", "depression",
+             "chicagosuburbs", "benfrick", "bmw", "cosplay", "cumberbitches", "d3gf", "deer", "depression",
              "depthhub", "drinkingdollars", "forwardsfromgrandma", "futurology", "geckos", "giraffes",
              "graphical_design", "grindsmygears", "indianfetish", "misc", "mixedbreeds", "news", "newtotf2", "omaha",
              "petstacking", "pigs", "politicaldiscussion", "politics", "programmingcirclejerk", "raerthdev", "rants",
@@ -53,7 +53,7 @@ def link_subs(r, count, delay):
         try:
             linkedp = get_linked(r, submission.url);
         except praw.errors.ClientException:
-            logging.error("Link is not a reddit post! (ID: " + submission.id + ")");
+            logging.error("Link is not a reddit post (id: " + submission.id + ")");
             continue;
 
         if linkedp.id in linked:
@@ -74,6 +74,7 @@ def link_subs(r, count, delay):
         # End to do
         post(r, linkedp, submission);  # Hope it works
         linked_count += 1;
+        time.sleep(10);
 
     time.sleep(delay);
     return linked_count;
