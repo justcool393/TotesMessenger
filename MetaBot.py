@@ -3,7 +3,7 @@ import logging, os, praw, re, time, sys;
 linked = [];
 user = os.environ['REDDIT_USER'];
 test_reddits = ["TMTest", "Test", "justcool393"];
-blacklist = ["AdviceAnimals", "anime", "asianamerican", "askhistorians", "askscience", "askreddit", "aww",
+blacklist = ["adviceanimals", "anime", "asianamerican", "askhistorians", "askscience", "askreddit", "aww",
              "chicagosuburbs", "benfrick", "bmw", "cosplay", "cumberbitches", "d3gf", "deer", "depression",
              "depthhub", "drinkingdollars", "forwardsfromgrandma", "futurology", "geckos", "giraffes",
              "graphical_design", "grindsmygears", "indianfetish", "misc", "mixedbreeds", "news", "newtotf2", "omaha",
@@ -59,9 +59,11 @@ def link_subs(r, count, delay):
         if linkedp.id in linked:
             continue;
 
-        if linkedp.subreddit.display_name in blacklist:
+        if linkedp.subreddit.display_name.lower() in blacklist:
             linked.append(linkedp);
             continue;  # Do not comment in blacklisted subreddits (reddit rules)
+
+        if linkedp.subredit
 
         linkedp.replace_more_comments(limit=None, threshold=0);
         # TODO: Make the bot edit it's comment on other links.
