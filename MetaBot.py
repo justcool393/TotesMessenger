@@ -105,13 +105,15 @@ This post has been linked to from another place on reddit. ([Info](/r/TotesMesse
         logging.error(str(e));
 
 
-def format_link(post):
+def format_link(post, other):
     link = post.url;
-    return u"- [" + post.subreddit.url + "] " + u"[" + post.title + "](" + np(link) + ")\n";
+    srurl = post.subreddit.url;
+    return u"- [" + srurl[:-1] + "] " + u"[" + post.title + "](" + np(post.permalink) + ")\n";
 
 
 def np(link):
-    return re.sub(r"//[a-z]{0,3}\.?reddit", "//np.reddit", link);
+    return "http://np.reddit.com" + link;
+    # return re.sub(r"//[a-z]{0,3}\.?reddit", "//np.reddit", link);
 
 
 def is_comment(link):
