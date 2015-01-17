@@ -16,7 +16,7 @@ srcblacklist = ["depression", "lifeafternarcissists", "managedbynarcissists", "m
                 "rbnathome", "rbnbookclub", "rbnchildcare", "rbnfavors", "rbngames", "rbnlifeskills", "rbnmovienight",
                 "rbnrelationships", "rbnspouses", "suicidewatch", "trolledbynarcissists", "unremovable"];
 
-banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", "femradebates"];
+banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", "femradebates", "politic"];
 
 blockedusers = ["amprobablypooping", "evilrising", "frontpagewatch", "frontpagewatchmirror", "moon-done", "politicbot",
                 "removal_rover"];
