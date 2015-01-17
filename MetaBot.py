@@ -18,7 +18,7 @@ srcblacklist = ["depression", "lifeafternarcissists", "managedbynarcissists", "m
                 "rbnrelationships", "rbnspouses", "suicidewatch", "switcharoo", "trolledbynarcissists", "unremovable",
                 "politic", "mlplite", "risingthreads"];
 
-banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", "femradebates"];
+banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", "femradebates", "pcmasterrace"];
 
 blockedusers = ["amprobablypooping", "evilrising", "frontpagewatch", "frontpagewatchmirror", "moon-done", "politicbot",
                 "rising_threads_bot", "removal_rover"];
@@ -209,6 +209,7 @@ def np(link):
 def get_cid(url):
     l = re.sub(r"http[s]?://[a-z]{0,3}\.?reddit\.com/r/.{1,20}/comments/.{6,8}/.*/", "", url);
     l = re.sub(r"\?.*", "", l);
+    l = re.sub(r"\..*", "", l);
     return "t1_" + l;
 
 def get_object(r, url):
