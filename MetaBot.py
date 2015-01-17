@@ -100,12 +100,18 @@ def link_subs(r, count, delay):
         # TODO: Make the bot edit it's comment on other links.
 
         if isinstance(linkedp, praw.objects.Comment):
-            if not check_commment_replies(linkedp):
+            if check_commment_replies(linkedp):
+                linkedp.append(lid);
+                continue;
+            else:
                 comment(r, linkedp, submission);
         elif isinstance(linkedp, praw.objects.Submission):
             linkedp.replace_more_comments(limit=None, threshold=0);
             commented = check_commented(linkedp);
-            if not commented:
+            if check_commented(linkedp):
+                linkedp.append(lid);
+                continue;
+            else:
                 post(r, linkedp, submission);
         else:
             logging.error("Not a Comment or Submission! (ID: " + id + ")");
@@ -220,7 +226,7 @@ def get_object(r, url):
         url = unnp(url);
         o = r.get_info(thing_id=get_cid(url));
         if o is None:
-            raise Exception("Comment is none! (URL: " + url);
+            raise Exception("Comment is none! (URL: " + url + ")");
 
         return o; # Get the comment (and hopefully not the link)
     else:
