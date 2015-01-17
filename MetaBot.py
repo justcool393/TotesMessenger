@@ -246,5 +246,5 @@ try:
 except (NameError, SyntaxError) as e:
     logging.error(exi(e));
     time.sleep(86400);  # Sleep for 1 day so we don't restart.
-except Exception as e:
-    log_crash(e);
+#except Exception as e:
+#    log_crash(e);
