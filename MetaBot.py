@@ -15,8 +15,8 @@ blacklist = ["anime", "asianamerican", "askhistorians", "askscience", "aww", "be
 
 srcblacklist = ["depression", "lifeafternarcissists", "managedbynarcissists", "moderationlog", "raisedbynarcissists",
                 "rbnathome", "rbnbookclub", "rbnchildcare", "rbnfavors", "rbngames", "rbnlifeskills", "rbnmovienight",
-                "rbnrelationships", "rbnspouses", "suicidewatch", "trolledbynarcissists", "unremovable", "politic",
-                "mlplite", "risingthreads"];
+                "rbnrelationships", "rbnspouses", "suicidewatch", "switcharoo", "trolledbynarcissists", "unremovable",
+                "politic", "mlplite", "risingthreads"];
 
 banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", "femradebates"];
 
@@ -71,7 +71,7 @@ def link_subs(r, count, delay):
         except Exception as e:
             logging.error("Could not get comment!");
             logging.error(exi(e));
-            
+
         lid = linkedp.id;
 
         if submission.author is None:
@@ -214,11 +214,12 @@ def get_object(r, url):
     a = re.compile("http[s]?://[a-z]{0,3}\.?reddit\.com/r/.{1,20}/comments/.{6,8}/.*/.{6,8}");
 
     if a.match(url):
-        o = r.get_info(get_cid(url));
+        url = unnp(url);
+        o = r.get_info(thing_id=get_cid(url));
         if o is None:
             raise Exception("Comment is none! (URL: " + url);
 
-        return r.get_info(get_cid(url)); # Get the comment (and hopefully not the link)
+        return o; # Get the comment (and hopefully not the link)
     else:
         return obj;
 
