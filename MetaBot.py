@@ -14,7 +14,8 @@ blacklist = ["anime", "asianamerican", "askhistorians", "askscience", "aww", "be
 
 srcblacklist = ["depression", "lifeafternarcissists", "managedbynarcissists", "moderationlog", "raisedbynarcissists",
                 "rbnathome", "rbnbookclub", "rbnchildcare", "rbnfavors", "rbngames", "rbnlifeskills", "rbnmovienight",
-                "rbnrelationships", "rbnspouses", "suicidewatch", "trolledbynarcissists", "unremovable", "politic", "mlplite"];
+                "rbnrelationships", "rbnspouses", "suicidewatch", "trolledbynarcissists", "unremovable", "politic",
+                "mlplite"];
 
 banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", "femradebates"];
 
@@ -53,8 +54,8 @@ def link_subs(r, count, delay):
     linked_count = 0;
     for submission in r.get_domain_listing('reddit.com', sort='new', limit=count):
 
-        if submission.subreddit.display_name.lower() not in test_reddits:  # For testing things
-            continue;
+        # if submission.subreddit.display_name.lower() not in test_reddits:  # For testing things
+        #     continue;
 
         url = submission.url;
         if not is_comment(url):
@@ -157,7 +158,9 @@ def check_commented(s):
 
 def format_comment(r, original):
     comment = u"""
-This thread has been linked to from another place on reddit. [\(Info and Contact\)](/r/TotesMessenger/wiki/)
+This thread has been linked to from another place on reddit.
+
+^Do ^not ^vote ^or ^comment ^in ^linked ^threads. ^\([Info](/r/TotesMessenger/wiki/) ^| ^[Contact](/message/compose/?to=\/r\/TMTest))
 
 {link}""";
     return comment.format(link=format_link(original));
