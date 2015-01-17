@@ -97,12 +97,12 @@ def link_subs(r, count, delay):
 
 
 def link_to_comment(r, submission):
+    raise Exception("Not implemented!");
 
 
 
-
-def get_comment(r, comment):
-    pass;
+def get_comment(r, s):
+    return get_linked(r, s).comments[0];
 
 
 def get_linked(r, link):

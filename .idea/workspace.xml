@@ -30,8 +30,8 @@
       <file leaf-file-name="MetaBot.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/MetaBot.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.52899575" vertical-offset="0" max-vertical-offset="3111">
-              <caret line="22" column="48" selection-start-line="22" selection-start-column="48" selection-end-line="22" selection-end-column="48" />
+            <state vertical-scroll-proportion="0.55304104" vertical-offset="1377" max-vertical-offset="3111">
+              <caret line="104" column="40" selection-start-line="104" selection-start-column="40" selection-end-line="104" selection-end-column="40" />
               <folding />
             </state>
           </provider>
@@ -297,8 +297,8 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/MetaBot.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.52899575" vertical-offset="0" max-vertical-offset="3111">
-          <caret line="22" column="48" selection-start-line="22" selection-start-column="48" selection-end-line="22" selection-end-column="48" />
+        <state vertical-scroll-proportion="0.55304104" vertical-offset="1377" max-vertical-offset="3111">
+          <caret line="104" column="40" selection-start-line="104" selection-start-column="40" selection-end-line="104" selection-end-column="40" />
           <folding />
         </state>
       </provider>
