@@ -205,7 +205,7 @@ def get_object(r, url):
     a = re.compile("http[s]?://[a-z]{0,3}\.?reddit\.com/r/.{1,20}/comments/.{6,8}/.*/.{6,8}");
 
     if a.match(url):
-        return r.get_info(url, 2)[1]; # Get the comment (and hopefully not the link)
+        return r.get_info(url)[1]; # Get the comment (and hopefully not the link)
     else:
         return obj;
 
