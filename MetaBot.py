@@ -16,12 +16,13 @@ srcblacklist = ["depression", "lifeafternarcissists", "managedbynarcissists", "m
                 "rbnathome", "rbnbookclub", "rbnchildcare", "rbnfavors", "rbngames", "rbnlifeskills", "rbnmovienight",
                 "rbnrelationships", "rbnspouses", "suicidewatch", "trolledbynarcissists", "unremovable"];
 
-banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit"];
+banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews"];
 
-blockedusers = ["amprobablypooping", "frontpagewatch", "moon-done", "politicbot", "removal_rover"];
+blockedusers = ["amprobablypooping", "frontpagewatch", "frontpagewatchmirror", "moon-done", "politicbot",
+                "removal_rover"];
+# Scraper and undelete are blocked from triggering the meta bot.
 
 test_reddits = ["justcool393", "tmtest", "totesmessenger"];
-# Bots are blocked from triggering the meta bot.
 
 
 def main():
@@ -33,7 +34,7 @@ def main():
     last_checked = 0;
     times_zero = 1;
 
-    count = link_subs(r, 100, 15);
+    count = link_subs(r, 100, 60);
     # Check the last 100 posts on startup
     while True:
         if time.time() - last_checked > check_at:
@@ -45,16 +46,15 @@ def main():
                 count = 0;
                 times_zero = 1;
 
-        count += link_subs(r, 50, 45);
+        count += link_subs(r, 25, 60);
 
 
 def link_subs(r, count, delay):
     linked_count = 0;
     for submission in r.get_domain_listing('reddit.com', sort='new', limit=count):
 
-        if submission.subreddit.display_name.lower() not in test_reddits:  # For testing things
-            continue;
-        logging.info("Found submission to link (ID: " + submission.id + ")");
+        #if submission.subreddit.display_name.lower() not in test_reddits:  # For testing things
+        #    continue;
 
         if not is_comment(submission.url):
             continue;
@@ -64,27 +64,26 @@ def link_subs(r, count, delay):
         except praw.errors.ClientException:
             logging.error("Link is not a reddit post (id: " + submission.id + ")");
             continue;
-
-        if linkedp.id in linked:
-            continue;
+        lid = linkedp.id;
 
         if submission.author.name.lower() in blockedusers:
-            continue;  # Block undelete, mod log and scraper bots.
+            linked.append(lid); # Block undelete, mod log and scraper bots.
 
         if linkedp.subreddit.display_name.lower() in blacklist:
-            linked.append(linkedp);
-            continue;  # Do not comment in blacklisted subreddits (reddit rules)
+            linked.append(lid); # Do not comment in blacklisted subreddits (reddit rules)
 
         if submission.subreddit.display_name.lower() in srcblacklist:
-            linked.append(linkedp);
-            continue;  # Do not comment if it comes from blocked sources (NPD, SW, etc..)
+            linked.append(lid); # Do not comment if it comes from blocked sources (NBD, SW, etc..)
+
+        if lid in linked:
+            continue;
 
         linkedp.replace_more_comments(limit=None, threshold=0);
         # TODO: Make the bot edit it's comment on other links.
         commented = check_commented(linkedp);
 
         if commented:
-            linked.append(linkedp);
+            linked.append(lid);
             continue;
 
         # End to do
@@ -96,9 +95,19 @@ def link_subs(r, count, delay):
     return linked_count;
 
 
-def link_to_comment(r, submission):
-    raise Exception("Not implemented!");
-
+def link_to_comment(r, url):
+    logging.error("Not implemented!");
+    return False;
+    # c = get_comment(r, url);
+    # if c.id in linked:
+    #     linked.append(c);
+    #     return False;
+    # if c.subreddit.display_name.lower() in blacklist:
+    #     linked.append(c);
+    #     return False;
+    # if c.subreddit.display_name.lower() in srcblacklist:
+    #     linked.append(c);
+    #     return False;
 
 
 def get_comment(r, s):
@@ -120,14 +129,16 @@ def check_commented(s):
             return True;
     return False;
 
-
-def post(r, s, post):
+def format_comment(r, original):
     comment = u"""
-This post has been linked to from another place on reddit. ([Info](/r/TotesMessenger/wiki/))
+This thread has been linked to from another place on reddit. [\(Info and Contact\)](/r/TotesMessenger/wiki/)
 
 {link}""";
+    return comment.format(link=format_link(original));
+
+def post(r, s, original):
     try:
-        s.add_comment(comment.format(link=format_link(post)));
+        s.add_comment(format_comment(r, original));
     except praw.errors.RateLimitExceeded:
         logging.debug("Cannot comment on post (comment karma is too low)");
     except Exception as e:
