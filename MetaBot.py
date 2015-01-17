@@ -55,19 +55,20 @@ def link_subs(r, count, delay):
 
         #if submission.subreddit.display_name.lower() not in test_reddits:  # For testing things
         #    continue;
-
-        if not is_comment(submission.url):
+        url = submission.url;
+        if not is_comment(url):
             continue;
 
         try:
-            linkedp = get_linked(r, submission.url);
+            linkedp = get_object(r, url);
         except praw.errors.ClientException:
             logging.error("Link is not a reddit post (id: " + submission.id + ")");
+            logging.error(str(e));
             continue;
         lid = linkedp.id;
 
         if submission.author is None:
-            linked.append(lid);
+            linked.append(lid); # This is already deleted. Don't reply.
             continue;
 
         if submission.author.name.lower() in blockedusers:
@@ -89,16 +90,20 @@ def link_subs(r, count, delay):
         if lid in linked:
             continue;
 
-        linkedp.replace_more_comments(limit=None, threshold=0);
         # TODO: Make the bot edit it's comment on other links.
-        commented = check_commented(linkedp);
 
-        if commented:
-            linked.append(lid);
-            continue;
+        if isinstance(linkedp, praw.objects.Comment):
+            if not check_commment_replies(linkedp):
+                comment(r, linkedp, submission);
+        elif isinstance(linkedp, praw.objects.Submission):
+            linkedp.replace_more_comments(limit=None, threshold=0);
+            commented = check_commented(linkedp);
+            if not commented:
+                post(r, linkedp, submission);
+        else:
+            logging.error("Not a Comment or Submission! (ID: " + id + ")");
 
-        # End to do
-        post(r, linkedp, submission);  # Hope it works
+        linked.append(lid);
         linked_count += 1;
         time.sleep(10);
 
@@ -128,6 +133,15 @@ def get_comment(r, s):
 def get_linked(r, link):
     return r.get_submission(link);
 
+def check_commment_replies(c):
+    for co in c.replies:
+        if c.author is None:
+            continue;
+        if c.author.name == user:
+            return True;
+        if c.author.name == "totes_meta_bot":
+            return True;
+    return False;
 
 def check_commented(s):
     flat_comments = praw.helpers.flatten_tree(s.comments);
@@ -156,6 +170,15 @@ def post(r, s, original):
         logging.error("Exception on comment add! (Submission ID: " + str(s.id) + ")");
         logging.error(str(e));
 
+def comment(r, c, original):
+    try:
+        c.reply(format_comment(r, original));
+    except praw.errors.RateLimitExceeded:
+        logging.debug("Cannot comment (CK is too low)");
+    except Exception as e:
+        logging.error("Exception on comment add! (SID: " + str(c.id) + ")");
+        logging.error(str(e));
+
 
 def format_link(post):
     srurl = post.subreddit.url;
@@ -167,6 +190,12 @@ def np(link):
     return "http://np.reddit.com" + l;
     # return re.sub(r"//[a-z]{0,3}\.?reddit", "//np.reddit", link);
 
+def get_object(r, url):
+    obj = praw.objects.Submission.get_info(r, url);
+    if len(url.split('/')) == 6:
+        return obj
+    else:
+        return obj.comments[0];
 
 def is_comment(link):
     a = re.compile("http[s]?://[a-z]{0,3}\.?reddit\.com/r/.{1,20}/comments/.*");
