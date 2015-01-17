@@ -68,6 +68,10 @@ def link_subs(r, count, delay):
             logging.error("Link is not a reddit post (id: " + submission.id + ")");
             logging.error(exi(e));
             continue;
+        except Exception as e:
+            logging.error("Could not get comment!");
+            logging.error(exi(e));
+            
         lid = linkedp.id;
 
         if submission.author is None:
@@ -210,6 +214,10 @@ def get_object(r, url):
     a = re.compile("http[s]?://[a-z]{0,3}\.?reddit\.com/r/.{1,20}/comments/.{6,8}/.*/.{6,8}");
 
     if a.match(url):
+        o = r.get_info(get_cid(url));
+        if o is None:
+            raise Exception("Comment is none! (URL: " + url);
+
         return r.get_info(get_cid(url)); # Get the comment (and hopefully not the link)
     else:
         return obj;
@@ -243,7 +251,7 @@ def setup_logging():
 try:
     setup_logging();
     main();
-except (NameError, SyntaxError, TypeError) as e:
+except (AttributeError, NameError, SyntaxError, TypeError) as e:
     logging.error(exi(e));
     time.sleep(86400);  # Sleep for 1 day so we don't restart.
 #except Exception as e:
