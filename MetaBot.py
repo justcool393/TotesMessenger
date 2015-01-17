@@ -72,6 +72,9 @@ def link_subs(r, count, delay):
         if linkedp.subreddit.display_name.lower() in blacklist:
             linked.append(lid); # Do not comment in blacklisted subreddits (reddit rules)
 
+        if linkedp.subreddit.display_name.lower() in banned:
+            linked.append(lid); # Do not attempt to comment in banned/archived subreddits
+
         if submission.subreddit.display_name.lower() in srcblacklist:
             linked.append(lid); # Do not comment if it comes from blocked sources (NBD, SW, etc..)
 
