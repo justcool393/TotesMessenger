@@ -1,4 +1,4 @@
-import linecache, logging, os, praw, re, time, sys;
+import logging, os, praw, re, time, traceback, sys;
 
 linked = [];
 
@@ -193,7 +193,7 @@ def format_link(post):
 
 def unnp(link):
     l = re.sub(r"http[s]?://[a-z]{0,3}\.?reddit\.com", "", link);
-    return "http://www.reddit.com" + l;
+    return "www.reddit.com" + l;
 
 def np(link):
     l = re.sub(r"http[s]?://[a-z]{0,3}\.?reddit\.com", "", link);
@@ -221,13 +221,7 @@ def log_crash(e):
     sys.exit(1);  # Signal to the host that we crashed
 
 def exi(ex):
-    exc_type, exc_obj, tb = sys.exc_info()
-    f = tb.tb_frame
-    lineno = tb.tb_lineno
-    filename = f.f_code.co_filename
-    linecache.checkcache(filename)
-    line = linecache.getline(filename, lineno, f.f_globals)
-    return 'Exception in ({}, Line {} "{}"): {}'.format(filename, lineno, line.strip(), exc_obj)
+    return traceback.format_exc();
 
 
 def setup_logging():
