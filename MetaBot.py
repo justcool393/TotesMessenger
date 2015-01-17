@@ -66,17 +66,25 @@ def link_subs(r, count, delay):
             continue;
         lid = linkedp.id;
 
+        if submission.author is None:
+            linked.append(lid);
+            continue;
+
         if submission.author.name.lower() in blockedusers:
             linked.append(lid); # Block undelete, mod log and scraper bots.
+            continue;
 
         if linkedp.subreddit.display_name.lower() in blacklist:
             linked.append(lid); # Do not comment in blacklisted subreddits (reddit rules)
+            continue;
 
         if linkedp.subreddit.display_name.lower() in banned:
             linked.append(lid); # Do not attempt to comment in banned/archived subreddits
+            continue;
 
         if submission.subreddit.display_name.lower() in srcblacklist:
             linked.append(lid); # Do not comment if it comes from blocked sources (NBD, SW, etc..)
+            continue;
 
         if lid in linked:
             continue;
