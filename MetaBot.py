@@ -101,7 +101,7 @@ def link_subs(r, count, delay):
 
         if isinstance(linkedp, praw.objects.Comment):
             if check_commment_replies(linkedp):
-                linkedp.append(lid);
+                linked.append(lid);
                 continue;
             else:
                 comment(r, linkedp, submission);
@@ -109,7 +109,7 @@ def link_subs(r, count, delay):
             linkedp.replace_more_comments(limit=None, threshold=0);
             commented = check_commented(linkedp);
             if check_commented(linkedp):
-                linkedp.append(lid);
+                linked.append(lid);
                 continue;
             else:
                 post(r, linkedp, submission);
