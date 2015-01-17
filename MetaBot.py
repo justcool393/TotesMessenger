@@ -176,6 +176,8 @@ def post(r, s, original):
         s.add_comment(format_comment(r, original));
     except praw.errors.RateLimitExceeded:
         logging.debug("Cannot comment on post (comment karma is too low)");
+    except praw.errors.APIException as e:
+        logging.warning(str(e));
     except Exception as e:
         logging.error("Exception on comment add! (Submission ID: " + str(s.id) + ")");
         logging.error(exi(e));
