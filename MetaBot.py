@@ -193,7 +193,7 @@ def format_link(post):
 
 def unnp(link):
     l = re.sub(r"http[s]?://[a-z]{0,3}\.?reddit\.com", "", link);
-    return "www.reddit.com" + l;
+    return "http://www.reddit.com" + l;
 
 def np(link):
     l = re.sub(r"http[s]?://[a-z]{0,3}\.?reddit\.com", "", link);
@@ -203,7 +203,7 @@ def np(link):
 def get_object(r, url):
     obj = praw.objects.Submission.from_url(r, unnp(url));
     l = len(url.split('/'));
-    if l <= 6:
+    if l <= 8:
         return obj;
     else:
         return obj.comments[0];
