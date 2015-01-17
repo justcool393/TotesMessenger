@@ -63,7 +63,7 @@ def link_subs(r, count, delay):
 
         try:
             linkedp = get_object(r, url);
-        except praw.errors.ClientException:
+        except praw.errors.ClientException as e:
             logging.error("Link is not a reddit post (id: " + submission.id + ")");
             logging.error(str(e));
             continue;
