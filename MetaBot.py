@@ -16,12 +16,12 @@ blacklist = ["anime", "asianamerican", "askhistorians", "askscience", "aww", "be
 srcblacklist = ["depression", "lifeafternarcissists", "managedbynarcissists", "moderationlog", "raisedbynarcissists",
                 "rbnathome", "rbnbookclub", "rbnchildcare", "rbnfavors", "rbngames", "rbnlifeskills", "rbnmovienight",
                 "rbnrelationships", "rbnspouses", "suicidewatch", "trolledbynarcissists", "unremovable", "politic",
-                "mlplite"];
+                "mlplite", "risingthreads"];
 
 banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", "femradebates"];
 
 blockedusers = ["amprobablypooping", "evilrising", "frontpagewatch", "frontpagewatchmirror", "moon-done", "politicbot",
-                "removal_rover"];
+                "rising_threads_bot", "removal_rover"];
 # Scraper and undelete are blocked from triggering the meta bot.
 
 test_reddits = ["justcool393", "tmtest", "totesmessenger"];
@@ -200,12 +200,17 @@ def np(link):
     return "http://np.reddit.com" + l;
     # return re.sub(r"//[a-z]{0,3}\.?reddit", "//np.reddit", link);
 
+def get_cid(url):
+    l = re.sub(r"http[s]?://[a-z]{0,3}\.?reddit\.com/r/.{1,20}/comments/.{6,8}/.*/", "", url);
+    l = re.sub(r"\?.*", "", l);
+    return "t1_" + l;
+
 def get_object(r, url):
     obj = praw.objects.Submission.from_url(r, unnp(url));
     a = re.compile("http[s]?://[a-z]{0,3}\.?reddit\.com/r/.{1,20}/comments/.{6,8}/.*/.{6,8}");
 
     if a.match(url):
-        return r.get_info(url)[1]; # Get the comment (and hopefully not the link)
+        return r.get_info(get_cid(url)); # Get the comment (and hopefully not the link)
     else:
         return obj;
 
