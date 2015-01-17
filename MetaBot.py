@@ -14,9 +14,9 @@ blacklist = ["anime", "asianamerican", "askhistorians", "askscience", "aww", "be
 
 srcblacklist = ["depression", "lifeafternarcissists", "managedbynarcissists", "moderationlog", "raisedbynarcissists",
                 "rbnathome", "rbnbookclub", "rbnchildcare", "rbnfavors", "rbngames", "rbnlifeskills", "rbnmovienight",
-                "rbnrelationships", "rbnspouses", "suicidewatch", "trolledbynarcissists", "unremovable"];
+                "rbnrelationships", "rbnspouses", "suicidewatch", "trolledbynarcissists", "unremovable", "politic", "mlplite"];
 
-banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", "femradebates", "politic", "mlplite"];
+banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", "femradebates"];
 
 blockedusers = ["amprobablypooping", "evilrising", "frontpagewatch", "frontpagewatchmirror", "moon-done", "politicbot",
                 "removal_rover"];
