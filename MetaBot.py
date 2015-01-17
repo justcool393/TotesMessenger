@@ -2,14 +2,26 @@ import logging, os, praw, re, time, sys;
 
 linked = [];
 user = os.environ['REDDIT_USER'];
-test_reddits = ["TMTest", "Test", "justcool393"];
-blacklist = ["adviceanimals", "anime", "asianamerican", "askhistorians", "askscience", "askreddit", "aww",
-             "chicagosuburbs", "benfrick", "bmw", "cosplay", "cumberbitches", "d3gf", "deer", "depression",
-             "depthhub", "drinkingdollars", "forwardsfromgrandma", "futurology", "geckos", "giraffes",
-             "graphical_design", "grindsmygears", "indianfetish", "misc", "mixedbreeds", "news", "newtotf2", "omaha",
-             "petstacking", "pigs", "politicaldiscussion", "politics", "programmingcirclejerk", "raerthdev", "rants",
-             "salvia", "science", "seiko", "shoplifting", "sketches", "sociopath", "suicidewatch",
-             "talesfromtechsupport", "unitedkingdom"];
+blacklist = ["anime", "asianamerican", "askhistorians", "askscience", "aww", "benfrick", "bmw", "chicagosuburbs",
+             "cosplay", "cumberbitches", "d3gf", "deer", "depression", "depthhub", "drinkingdollars",
+             "forwardsfromgrandma", "futurology", "geckos", "giraffes", "graphical_design", "grindsmygears",
+             "indianfetish", "lifeafternarcissists", "managedbynarcissists", "misc", "mixedbreeds", "news", "newtotf2",
+             "omaha", "petstacking", "pigs", "politicaldiscussion", "politics", "programmingcirclejerk", "raerthdev",
+             "raisedbynarcissists", "rants", "rbnathome", "rbnbookclub", "rbnchildcare", "rbnfavors", "rbngames",
+             "rbnlifeskills", "rbnmovienight", "rbnrelationships", "rbnspouses", "salvia", "science", "seiko",
+             "shoplifting", "sketches", "sociopath", "suicidewatch", "talesfromtechsupport", "trolledbynarcissists",
+             "unitedkingdom"];
+
+srcblacklist = ["depression", "lifeafternarcissists", "managedbynarcissists", "moderationlog", "raisedbynarcissists",
+                "rbnathome", "rbnbookclub", "rbnchildcare", "rbnfavors", "rbngames", "rbnlifeskills", "rbnmovienight",
+                "rbnrelationships", "rbnspouses", "suicidewatch", "trolledbynarcissists", "unremovable"];
+
+banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit"];
+
+blockedusers = ["amprobablypooping", "frontpagewatch", "moon-done", "politicbot", "removal_rover"];
+
+test_reddits = ["justcool393", "tmtest", "totesmessenger"];
+# Bots are blocked from triggering the meta bot.
 
 
 def main():
@@ -40,14 +52,11 @@ def link_subs(r, count, delay):
     linked_count = 0;
     for submission in r.get_domain_listing('reddit.com', sort='new', limit=count):
 
-        # if submission.subreddit not in test_reddits:  # For testing things
-        #     continue;
-        #logging.info("Found submission to link (ID: " + submission.id + ")");
+        if submission.subreddit.display_name.lower() not in test_reddits:  # For testing things
+            continue;
+        logging.info("Found submission to link (ID: " + submission.id + ")");
 
         if not is_comment(submission.url):
-            continue;
-
-        if submission.subreddit.display_name is "ModerationLog":
             continue;
 
         try:
@@ -59,9 +68,16 @@ def link_subs(r, count, delay):
         if linkedp.id in linked:
             continue;
 
+        if submission.author.name.lower() in blockedusers:
+            continue;  # Block undelete, mod log and scraper bots.
+
         if linkedp.subreddit.display_name.lower() in blacklist:
             linked.append(linkedp);
             continue;  # Do not comment in blacklisted subreddits (reddit rules)
+
+        if submission.subreddit.display_name.lower() in srcblacklist:
+            linked.append(linkedp);
+            continue;  # Do not comment if it comes from blocked sources (NPD, SW, etc..)
 
         linkedp.replace_more_comments(limit=None, threshold=0);
         # TODO: Make the bot edit it's comment on other links.
@@ -78,6 +94,15 @@ def link_subs(r, count, delay):
 
     time.sleep(delay);
     return linked_count;
+
+
+def link_to_comment(r, submission):
+
+
+
+
+def get_comment(r, comment):
+    pass;
 
 
 def get_linked(r, link):
