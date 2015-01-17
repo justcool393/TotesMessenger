@@ -203,9 +203,9 @@ def np(link):
 def get_object(r, url):
     obj = praw.objects.Submission.from_url(r, unnp(url));
     a = re.compile("http[s]?://[a-z]{0,3}\.?reddit\.com/r/.{1,20}/comments/.{6,8}/.*/.{6,8}");
-    
+
     if a.match(url):
-        return obj.comments[0];
+        return r.get_info(url, "t1_", 1);
     else:
         return obj;
 
