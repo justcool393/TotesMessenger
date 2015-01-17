@@ -1,6 +1,7 @@
 import linecache, logging, os, praw, re, time, sys;
 
 linked = [];
+
 user = os.environ['REDDIT_USER'];
 blacklist = ["anime", "asianamerican", "askhistorians", "askscience", "aww", "benfrick", "bmw", "chicagosuburbs",
              "cosplay", "cumberbitches", "d3gf", "deer", "depression", "depthhub", "drinkingdollars",
@@ -160,10 +161,11 @@ def format_comment(r, original):
     cmt = u"""
 This thread has been linked to from another place on reddit.
 
-^Do ^not ^vote ^or ^comment ^in ^linked ^threads. ^\([Info](/r/TotesMessenger/wiki/) ^| ^[Contact](/message/compose/?to=\/r\/TMTest))
+{link}
 
-{link}""";
+^Do ^not ^vote ^or ^comment ^in ^linked ^threads. ^\([Info](/r/TotesMessenger/wiki/) ^| ^[Contact](/message/compose/?to=\/r\/TMTest))""";
     return cmt.format(link=format_link(original));
+
 
 def post(r, s, original):
     try:
@@ -173,6 +175,7 @@ def post(r, s, original):
     except Exception as e:
         logging.error("Exception on comment add! (Submission ID: " + str(s.id) + ")");
         logging.error(exi(e));
+
 
 def comment(r, c, original):
     try:
@@ -199,8 +202,9 @@ def np(link):
 
 def get_object(r, url):
     obj = praw.objects.Submission.from_url(r, unnp(url));
-    if len(url.split('/')) == 6:
-        return obj
+    l = len(url.split('/'));
+    if l == 6 or l == 5:
+        return obj;
     else:
         return obj.comments[0];
 
