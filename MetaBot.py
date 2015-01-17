@@ -16,7 +16,7 @@ blacklist = ["anime", "asianamerican", "askhistorians", "askscience", "aww", "be
 srcblacklist = ["depression", "lifeafternarcissists", "managedbynarcissists", "moderationlog", "raisedbynarcissists",
                 "rbnathome", "rbnbookclub", "rbnchildcare", "rbnfavors", "rbngames", "rbnlifeskills", "rbnmovienight",
                 "rbnrelationships", "rbnspouses", "suicidewatch", "switcharoo", "trolledbynarcissists", "unremovable",
-                "politic", "mlplite", "risingthreads"];
+                "politic", "mlplite", "risingthreads", "uncensorship"];
 
 banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", "femradebates", "pcmasterrace"];
 
