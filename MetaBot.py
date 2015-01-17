@@ -1,4 +1,4 @@
-import logging, os, praw, re, time, sys;
+import linecache, logging, os, praw, re, time, sys;
 
 linked = [];
 user = os.environ['REDDIT_USER'];
@@ -65,7 +65,7 @@ def link_subs(r, count, delay):
             linkedp = get_object(r, url);
         except praw.errors.ClientException as e:
             logging.error("Link is not a reddit post (id: " + submission.id + ")");
-            logging.error(str(e));
+            logging.error(exi(e));
             continue;
         lid = linkedp.id;
 
@@ -137,11 +137,11 @@ def get_linked(r, link):
 
 def check_commment_replies(c):
     for co in c.replies:
-        if c.author is None:
+        if co.author is None:
             continue;
-        if c.author.name == user:
+        if co.author.name == user:
             return True;
-        if c.author.name == "totes_meta_bot":
+        if co.author.name == "totes_meta_bot":
             return True;
     return False;
 
@@ -157,13 +157,13 @@ def check_commented(s):
     return False;
 
 def format_comment(r, original):
-    comment = u"""
+    cmt = u"""
 This thread has been linked to from another place on reddit.
 
 ^Do ^not ^vote ^or ^comment ^in ^linked ^threads. ^\([Info](/r/TotesMessenger/wiki/) ^| ^[Contact](/message/compose/?to=\/r\/TMTest))
 
 {link}""";
-    return comment.format(link=format_link(original));
+    return cmt.format(link=format_link(original));
 
 def post(r, s, original):
     try:
@@ -172,7 +172,7 @@ def post(r, s, original):
         logging.debug("Cannot comment on post (comment karma is too low)");
     except Exception as e:
         logging.error("Exception on comment add! (Submission ID: " + str(s.id) + ")");
-        logging.error(str(e));
+        logging.error(exi(e));
 
 def comment(r, c, original):
     try:
@@ -208,9 +208,19 @@ def is_comment(link):
 
 def log_crash(e):
     logging.error("Error occurred in the bot; restarting in 15 seconds...");
-    logging.error("Details: " + str(e));
+    logging.error("Details: ");
+    logging.error(exi(e));
     time.sleep(15);
     sys.exit(1);  # Signal to the host that we crashed
+
+def exi(ex):
+    exc_type, exc_obj, tb = sys.exc_info()
+    f = tb.tb_frame
+    lineno = tb.tb_lineno
+    filename = f.f_code.co_filename
+    linecache.checkcache(filename)
+    line = linecache.getline(filename, lineno, f.f_globals)
+    return 'Exception in ({}, Line {} "{}"): {}'.format(filename, lineno, line.strip(), exc_obj)
 
 
 def setup_logging():
@@ -227,7 +237,7 @@ try:
     setup_logging();
     main();
 except (NameError, SyntaxError) as e:
-    logging.error(str(e));
+    logging.error(exi(e));
     time.sleep(86400);  # Sleep for 1 day so we don't restart.
 except Exception as e:
     log_crash(e);
