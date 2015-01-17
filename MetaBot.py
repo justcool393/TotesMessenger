@@ -55,7 +55,7 @@ def link_subs(r, count, delay):
 
         if submission.subreddit.display_name.lower() not in test_reddits:  # For testing things
             continue;
-            
+
         url = submission.url;
         if not is_comment(url):
             continue;
@@ -192,7 +192,7 @@ def np(link):
     # return re.sub(r"//[a-z]{0,3}\.?reddit", "//np.reddit", link);
 
 def get_object(r, url):
-    obj = praw.objects.Submission.get_info(r, url);
+    obj = praw.objects.Submission.from_url(r, url);
     if len(url.split('/')) == 6:
         return obj
     else:
