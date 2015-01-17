@@ -203,7 +203,7 @@ def np(link):
 def get_object(r, url):
     obj = praw.objects.Submission.from_url(r, unnp(url));
     l = len(url.split('/'));
-    if l == 6 or l == 5:
+    if l <= 6:
         return obj;
     else:
         return obj.comments[0];
