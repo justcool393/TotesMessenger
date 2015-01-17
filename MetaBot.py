@@ -188,6 +188,9 @@ def format_link(post):
     srurl = post.subreddit.url;
     return u"- [" + srurl[:-1] + "] " + u"[" + post.title + "](" + np(post.permalink) + ")\n";
 
+def unnp(link):
+    l = re.sub(r"http[s]?://[a-z]{0,3}\.?reddit\.com", "", link);
+    return "http://www.reddit.com" + l;
 
 def np(link):
     l = re.sub(r"http[s]?://[a-z]{0,3}\.?reddit\.com", "", link);
@@ -195,7 +198,7 @@ def np(link):
     # return re.sub(r"//[a-z]{0,3}\.?reddit", "//np.reddit", link);
 
 def get_object(r, url):
-    obj = praw.objects.Submission.from_url(r, url);
+    obj = praw.objects.Submission.from_url(r, unnp(url));
     if len(url.split('/')) == 6:
         return obj
     else:
