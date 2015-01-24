@@ -6,19 +6,18 @@ user = os.environ['REDDIT_USER'];
 blacklist = ["anime", "asianamerican", "askhistorians", "askscience", "aww", "benfrick", "bmw", "chicagosuburbs",
              "cosplay", "cumberbitches", "d3gf", "deer", "depression", "depthhub", "drinkingdollars",
              "forwardsfromgrandma", "futurology", "geckos", "giraffes", "graphical_design", "grindsmygears",
-             "indianfetish", "lifeafternarcissists", "managedbynarcissists", "misc", "mixedbreeds", "news", "newtotf2",
-             "omaha", "petstacking", "pigs", "politicaldiscussion", "politics", "programmingcirclejerk", "raerthdev",
-             "raisedbynarcissists", "rants", "rbnathome", "rbnbookclub", "rbnchildcare", "rbnfavors", "rbngames",
-             "rbnlifeskills", "rbnmovienight", "rbnrelationships", "rbnspouses", "salvia", "science", "seiko",
-             "shoplifting", "sketches", "sociopath", "suicidewatch", "talesfromtechsupport", "trolledbynarcissists",
-             "unitedkingdom"];
+             "indianfetish", "misc", "mixedbreeds", "news", "newtotf2", "omaha", "petstacking", "pigs",
+             "politicaldiscussion", "politics", "programmingcirclejerk", "raerthdev", "rants", "salvia", "science",
+             "seiko", "shoplifting", "sketches", "sociopath", "suicidewatch", "talesfromtechsupport", "unitedkingdom"];
+             # Do not edit
 
 srcblacklist = ["depression", "lifeafternarcissists", "managedbynarcissists", "moderationlog", "raisedbynarcissists",
                 "rbnathome", "rbnbookclub", "rbnchildcare", "rbnfavors", "rbngames", "rbnlifeskills", "rbnmovienight",
                 "rbnrelationships", "rbnspouses", "suicidewatch", "switcharoo", "trolledbynarcissists", "unremovable",
                 "politic", "mlplite", "risingthreads", "uncensorship"];
 
-banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", "femradebates", "pcmasterrace"];
+banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", "femradebates", "pcmasterrace",
+          "purplepilldebate", ];
 
 blockedusers = ["amprobablypooping", "evilrising", "frontpagewatch", "frontpagewatchmirror", "moon-done", "politicbot",
                 "rising_threads_bot", "removal_rover"];
@@ -118,7 +117,7 @@ def link_subs(r, count, delay):
 
         linked.append(lid);
         linked_count += 1;
-        time.sleep(10);
+        time.sleep(3);
 
     time.sleep(delay);
     return linked_count;
