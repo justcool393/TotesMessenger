@@ -163,6 +163,7 @@ def check_commented(s):
     return False;
 
 def get_bot_comment(s):
+    flat_comments = praw.helpers.flatten_tree(s.comments);
     for c in flat_comments:
         if c.author is None:
             continue;
