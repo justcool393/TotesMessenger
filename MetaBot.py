@@ -62,7 +62,7 @@ def link_subs(r, count, delay):
 
         try:
             link_submission(submission);
-        except HTTPError as e:
+        except Exception as e:
             logging.error(exi(e));
         linked_count += 1;
         time.sleep(3);
