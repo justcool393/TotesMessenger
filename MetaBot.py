@@ -172,9 +172,9 @@ def get_bot_comment(s):
     if isinstance(linkedp, praw.objects.Comment):
         for c in s.replies:
             if c.author is None:
-            continue;
-        if c.author.name == user:
-            return c;
+                continue;
+            if c.author.name == user:
+                return c;
     else:
         flat_comments = praw.helpers.flatten_tree(s.comments);
         for c in flat_comments:
