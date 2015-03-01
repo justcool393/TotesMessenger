@@ -12,7 +12,7 @@ blacklist = ["anime", "asianamerican", "askhistorians", "askscience", "aww", "be
              "indianfetish", "misc", "mixedbreeds", "news", "newtotf2", "omaha", "petstacking", "pigs",
              "politicaldiscussion", "politics", "programmingcirclejerk", "raerthdev", "rants", "salvia", "science",
              "seiko", "shoplifting", "sketches", "sociopath", "suicidewatch", "talesfromtechsupport", "unitedkingdom"];
-             # Do not edit
+# Do not edit
 
 srcblacklist = ["depression", "lifeafternarcissists", "managedbynarcissists", "moderationlog", "raisedbynarcissists",
                 "rbnathome", "rbnbookclub", "rbnchildcare", "rbnfavors", "rbngames", "rbnlifeskills", "rbnmovienight",
@@ -57,78 +57,87 @@ def link_subs(r, count, delay):
     linked_count = 0;
     for submission in r.get_domain_listing('reddit.com', sort='new', limit=count):
 
-        # if submission.subreddit.display_name.lower() not in test_reddits:  # For testing things
-        #     continue;
-
-        url = submission.url;
-        if not is_comment(url):
+        if submission.subreddit.display_name.lower() not in test_reddits:  # For testing things
             continue;
 
         try:
-            linkedp = get_object(r, url);
-        except praw.errors.ClientException as e:
-            logging.error("Link is not a reddit post (id: " + submission.id + ")");
+            link_submission(submission);
+        except HTTPError as e:
             logging.error(exi(e));
-            continue;
-        except Exception as e:
-            logging.error("Could not get comment!");
-            logging.error(exi(e));
+        linked_count += 1;
+        time.sleep(3);
 
-        lid = linkedp.id;
+    time.sleep(delay);
+    return linked_count;
 
-        if submission.author is None:
-            linked.append(lid); # This is already deleted. Don't reply.
-            continue;
 
-        if submission.author.name.lower() in blockedusers:
-            linked.append(lid); # Block undelete, mod log and scraper bots.
-            continue;
+def link_submission(submission):
+    url = submission.url;
+    if not is_comment(url):
+        return;
 
-        if linkedp.subreddit.display_name.lower() in blacklist:
-            linked.append(lid); # Do not comment in blacklisted subreddits (reddit rules)
-            continue;
+    try:
+        linkedp = get_object(r, url);
+    except praw.errors.ClientException as e:
+        logging.error("Link is not a reddit post (id: " + submission.id + ")");
 
-        if linkedp.subreddit.display_name.lower() in banned:
-            linked.append(lid); # Do not attempt to comment in banned/archived subreddits
-            continue;
+        logging.error(exi(e));
+        return;
+    except Exception as e:
+        logging.error("Could not get comment!");
+        logging.error(exi(e));
 
-        if submission.subreddit.display_name.lower() in srcblacklist:
-            linked.append(lid); # Do not comment if it comes from blocked sources (NBD, SW, etc..)
-            continue;
+    lid = linkedp.id;
 
-        if lid in linked:
-            if submission.id not in linkedsrc:
-                success = edit_post(get_bot_comment(linkedp), submission);
-                if success:
-                    linkedsrc.append(submission.id);
-                    continue;
+    if submission.author is None:
+        linked.append(lid);  # This is already deleted. Don't reply.
+        return;
+
+    if submission.author.name.lower() in blockedusers:
+        linked.append(lid);  # Block undelete, mod log and scraper bots.
+        return;
+
+    if linkedp.subreddit.display_name.lower() in blacklist:
+        linked.append(lid);  # Do not comment in blacklisted subreddits (reddit rules)
+        return;
+
+    if linkedp.subreddit.display_name.lower() in banned:
+        linked.append(lid);  # Do not attempt to comment in banned/archived subreddits
+        return;
+
+    if submission.subreddit.display_name.lower() in srcblacklist:
+        linked.append(lid);  # Do not comment if it comes from blocked sources (NBD, SW, etc..)
+        return;
+
+    if lid in linked:
+        if submission.id not in linkedsrc:
+            success = edit_post(get_bot_comment(linkedp), submission);
+            if success:
+                linkedsrc.append(submission.id);
+                return;
             else:
-                continue;
-
-
+                return;
 
         if isinstance(linkedp, praw.objects.Comment):
             if check_commment_replies(linkedp):
                 linked.append(lid);
-                continue;
+                linkedsrc.append(submission.id);
+                return;
             else:
                 comment(linkedp, submission);
         elif isinstance(linkedp, praw.objects.Submission):
             linkedp.replace_more_comments(limit=None, threshold=0);
             if check_commented(linkedp):
+                linkedsrc.append(submission.id);
                 linked.append(lid);
-                continue;
+                return;
             else:
                 post(linkedp, submission);
         else:
             logging.error("Not a Comment or Submission! (ID: " + id + ")");
 
         linked.append(lid);
-        linked_count += 1;
-        time.sleep(3);
 
-    time.sleep(delay);
-    return linked_count;
 
 def edit_post(totessubmission, original):
     if totessubmission is None:
@@ -136,9 +145,11 @@ def edit_post(totessubmission, original):
     text = re.sub("\^Do.{1,}", "", totessubmission.body);
     text = text + format_link(original) + u"""
 
+
     """ + brigademsg;
     totessubmission.edit(text);
     return True;
+
 
 def get_comment(r, s):
     return get_linked(r, s).comments[0];
@@ -146,6 +157,7 @@ def get_comment(r, s):
 
 def get_linked(r, link):
     return r.get_submission(link);
+
 
 def check_commment_replies(c):
     for co in c.replies:
@@ -157,6 +169,7 @@ def check_commment_replies(c):
             return True;
     return False;
 
+
 def check_commented(s):
     flat_comments = praw.helpers.flatten_tree(s.comments);
     for c in flat_comments:
@@ -167,6 +180,7 @@ def check_commented(s):
         if c.author.name == "totes_meta_bot":
             return True;
     return False;
+
 
 def get_bot_comment(s):
     if isinstance(s, praw.objects.Comment):
@@ -183,6 +197,7 @@ def get_bot_comment(s):
             if c.author.name == user:
                 return c;
     return None;
+
 
 def format_comment(original):
     cmt = u"""
@@ -220,20 +235,25 @@ def format_link(post):
     srurl = post.subreddit.url;
     return u"- [" + srurl[:-1] + "] " + u"[" + post.title + "](" + np(post.permalink) + ")\n";
 
+
 def unnp(link):
     l = re.sub(r"http[s]?://[a-z]{0,3}\.?reddit\.com", "", link);
     return "http://www.reddit.com" + l;
 
+
 def np(link):
     l = re.sub(r"http[s]?://[a-z]{0,3}\.?reddit\.com", "", link);
     return "http://np.reddit.com" + l;
-    # return re.sub(r"//[a-z]{0,3}\.?reddit", "//np.reddit", link);
+
+
+# return re.sub(r"//[a-z]{0,3}\.?reddit", "//np.reddit", link);
 
 def get_cid(url):
     l = re.sub(r"http[s]?://[a-z]{0,3}\.?reddit\.com/r/.{1,20}/comments/.{6,8}/.*/", "", url);
     l = re.sub(r"\?.*", "", l);
     l = re.sub(r"\..*", "", l);
     return "t1_" + l;
+
 
 def get_object(r, url):
     obj = praw.objects.Submission.from_url(r, unnp(url));
@@ -245,9 +265,10 @@ def get_object(r, url):
         if o is None:
             raise Exception("Comment is none! (URL: " + url + ")");
 
-        return o; # Get the comment (and hopefully not the link)
+        return o;  # Get the comment (and hopefully not the link)
     else:
         return obj;
+
 
 def is_comment(link):
     a = re.compile("http[s]?://[a-z]{0,3}\.?reddit\.com/r/.{1,20}/comments/.*");
@@ -260,6 +281,7 @@ def log_crash(e):
     logging.error(exi(e));
     time.sleep(15);
     sys.exit(1);  # Signal to the host that we crashed
+
 
 def exi(ex):
     return traceback.format_exc();
@@ -281,5 +303,5 @@ try:
 except (AttributeError, NameError, SyntaxError, TypeError) as e:
     logging.error(exi(e));
     time.sleep(86400);  # Sleep for 1 day so we don't restart.
-#except Exception as e:
-#    log_crash(e);
+    # except Exception as e:
+    #	log_crash(e);
