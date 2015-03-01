@@ -1,4 +1,4 @@
-import logging, os, praw, re, time, traceback, sys;
+import logging, os, praw, re, time, traceback, sys, urllib2;
 
 linked = [];
 linkedsrc = [];
@@ -62,7 +62,7 @@ def link_subs(r, count, delay):
 
         try:
             link_submission(submission);
-        except urllib2.HTTPError as e:
+        except HTTPError as e:
             logging.error(exi(e));
         linked_count += 1;
         time.sleep(3);
