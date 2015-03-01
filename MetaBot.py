@@ -57,8 +57,8 @@ def link_subs(r, count, delay):
     linked_count = 0;
     for submission in r.get_domain_listing('reddit.com', sort='new', limit=count):
 
-        if submission.subreddit.display_name.lower() not in test_reddits:  # For testing things
-            continue;
+        #if submission.subreddit.display_name.lower() not in test_reddits:  # For testing things
+        #    continue;
 
         try:
             link_submission(r, submission);
