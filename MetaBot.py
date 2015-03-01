@@ -169,7 +169,7 @@ def check_commented(s):
     return False;
 
 def get_bot_comment(s):
-    if isinstance(linkedp, praw.objects.Comment):
+    if isinstance(s, praw.objects.Comment):
         for c in s.replies:
             if c.author is None:
                 continue;
