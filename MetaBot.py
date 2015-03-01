@@ -98,9 +98,12 @@ def link_subs(r, count, delay):
 
         if lid in linked:
             if submission.id not in linkedsrc:
-                edit_post(get_bot_comment(linkedp), submission);
-                linkedsrc.append(submission.id);
-            continue;
+                success = edit_post(get_bot_comment(linkedp), submission);
+                if success:
+                    linkedsrc.append(submission.id);
+                    continue;
+            else:
+                continue;
 
 
 
@@ -128,11 +131,14 @@ def link_subs(r, count, delay):
     return linked_count;
 
 def edit_post(totessubmission, original):
+    if totessubmission is None:
+        return False;
     text = re.sub("\^Do.{1,}", "", totessubmission.body);
     text = text + format_link(original) + u"""
 
     """ + brigademsg;
     totessubmission.edit(text);
+    return True;
 
 def get_comment(r, s):
     return get_linked(r, s).comments[0];
