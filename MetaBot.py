@@ -17,7 +17,7 @@ srcblacklist = ["depression", "lifeafternarcissists", "managedbynarcissists", "m
                 "politic", "mlplite", "risingthreads", "uncensorship"];
 
 banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", "femradebates", "pcmasterrace",
-          "purplepilldebate", ];
+          "purplepilldebate", "slrep"];
 
 blockedusers = ["amprobablypooping", "evilrising", "frontpagewatch", "frontpagewatchmirror", "moon-done", "politicbot",
                 "rising_threads_bot", "removal_rover"];
@@ -121,21 +121,6 @@ def link_subs(r, count, delay):
 
     time.sleep(delay);
     return linked_count;
-
-
-def link_to_comment(r, url):
-    logging.error("Not implemented!");
-    return False;
-    # c = get_comment(r, url);
-    # if c.id in linked:
-    #     linked.append(c);
-    #     return False;
-    # if c.subreddit.display_name.lower() in blacklist:
-    #     linked.append(c);
-    #     return False;
-    # if c.subreddit.display_name.lower() in srcblacklist:
-    #     linked.append(c);
-    #     return False;
 
 
 def get_comment(r, s):
