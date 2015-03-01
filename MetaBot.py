@@ -75,7 +75,7 @@ def link_submission(submission):
     url = submission.url;
     if not is_comment(url):
         return;
-
+    linkedp = None;
     try:
         linkedp = get_object(r, url);
     except praw.errors.ClientException as e:
