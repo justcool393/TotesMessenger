@@ -87,6 +87,9 @@ def link_submission(r, submission):
         logging.error("Could not get comment!");
         logging.error(exi(e));
 
+    if linkedp is None:
+        return;
+
     lid = linkedp.id;
 
     if submission.author is None:
