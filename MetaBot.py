@@ -117,9 +117,7 @@ def link_submission(r, submission):
             success = edit_post(get_bot_comment(linkedp), submission);
             if success:
                 linkedsrc.append(submission.id);
-                return;
-            else:
-                return;
+        return;
 
     if isinstance(linkedp, praw.objects.Comment):
         if check_commment_replies(linkedp):
@@ -193,6 +191,7 @@ def get_bot_comment(s):
             if c.author.name == user:
                 return c;
     else:
+        s.replace_more_comments(limit=None, threshold=0);
         flat_comments = praw.helpers.flatten_tree(s.comments);
         for c in flat_comments:
             if c.author is None:
