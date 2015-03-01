@@ -118,25 +118,25 @@ def link_submission(r, submission):
             else:
                 return;
 
-        if isinstance(linkedp, praw.objects.Comment):
-            if check_commment_replies(linkedp):
-                linked.append(lid);
-                linkedsrc.append(submission.id);
-                return;
-            else:
-                comment(linkedp, submission);
-        elif isinstance(linkedp, praw.objects.Submission):
-            linkedp.replace_more_comments(limit=None, threshold=0);
-            if check_commented(linkedp):
-                linkedsrc.append(submission.id);
-                linked.append(lid);
-                return;
-            else:
-                post(linkedp, submission);
+    if isinstance(linkedp, praw.objects.Comment):
+        if check_commment_replies(linkedp):
+            linked.append(lid);
+            linkedsrc.append(submission.id);
+            return;
         else:
-            logging.error("Not a Comment or Submission! (ID: " + id + ")");
+            comment(linkedp, submission);
+    elif isinstance(linkedp, praw.objects.Submission):
+        linkedp.replace_more_comments(limit=None, threshold=0);
+        if check_commented(linkedp):
+            linkedsrc.append(submission.id);
+            linked.append(lid);
+            return;
+        else:
+            post(linkedp, submission);
+    else:
+        logging.error("Not a Comment or Submission! (ID: " + id + ")");
 
-        linked.append(lid);
+    linked.append(lid);
 
 
 def edit_post(totessubmission, original):
