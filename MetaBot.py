@@ -1,6 +1,9 @@
 import logging, os, praw, re, time, traceback, sys;
 
 linked = [];
+linkedsrc = [];
+
+brigademsg = u"""^Do ^not ^vote ^or ^comment ^in ^linked ^threads. ^\([Info](/r/TotesMessenger/wiki/) ^| ^[Contact](/message/compose/?to=\/r\/TMTest))""";
 
 user = os.environ['REDDIT_USER'];
 blacklist = ["anime", "asianamerican", "askhistorians", "askscience", "aww", "benfrick", "bmw", "chicagosuburbs",
@@ -94,24 +97,26 @@ def link_subs(r, count, delay):
             continue;
 
         if lid in linked:
+            if submission.id not in linkedsrc:
+                edit_post(get_bot_comment(linkedp), submission);
+                linkedsrc.append(submission.id);
             continue;
 
-        # TODO: Make the bot edit it's comment on other links.
+
 
         if isinstance(linkedp, praw.objects.Comment):
             if check_commment_replies(linkedp):
                 linked.append(lid);
                 continue;
             else:
-                comment(r, linkedp, submission);
+                comment(linkedp, submission);
         elif isinstance(linkedp, praw.objects.Submission):
             linkedp.replace_more_comments(limit=None, threshold=0);
-            commented = check_commented(linkedp);
             if check_commented(linkedp):
                 linked.append(lid);
                 continue;
             else:
-                post(r, linkedp, submission);
+                post(linkedp, submission);
         else:
             logging.error("Not a Comment or Submission! (ID: " + id + ")");
 
@@ -122,6 +127,12 @@ def link_subs(r, count, delay):
     time.sleep(delay);
     return linked_count;
 
+def edit_post(totessubmission, original):
+    text = re.sub("\^Do.{1,}", "", totessubmission.body);
+    text = text + format_link(original) + u"""
+
+    """ + brigademsg;
+    totessubmission.edit(text);
 
 def get_comment(r, s):
     return get_linked(r, s).comments[0];
@@ -151,19 +162,27 @@ def check_commented(s):
             return True;
     return False;
 
-def format_comment(r, original):
+def get_bot_comment(s):
+    for c in flat_comments:
+        if c.author is None:
+            continue;
+        if c.author.name == user:
+            return c;
+    return None;
+
+def format_comment(original):
     cmt = u"""
 This thread has been linked to from another place on reddit.
 
 {link}
 
-^Do ^not ^vote ^or ^comment ^in ^linked ^threads. ^\([Info](/r/TotesMessenger/wiki/) ^| ^[Contact](/message/compose/?to=\/r\/TMTest))""";
+""" + brigademsg;
     return cmt.format(link=format_link(original));
 
 
-def post(r, s, original):
+def post(s, original):
     try:
-        s.add_comment(format_comment(r, original));
+        s.add_comment(format_comment(original));
     except praw.errors.RateLimitExceeded:
         logging.debug("Cannot comment on post (comment karma is too low)");
     except praw.errors.APIException as e:
@@ -173,9 +192,9 @@ def post(r, s, original):
         logging.error(exi(e));
 
 
-def comment(r, c, original):
+def comment(c, original):
     try:
-        c.reply(format_comment(r, original));
+        c.reply(format_comment(original));
     except praw.errors.RateLimitExceeded:
         logging.debug("Cannot comment (CK is too low)");
     except Exception as e:
