@@ -61,7 +61,7 @@ def link_subs(r, count, delay):
             continue;
 
         try:
-            link_submission(submission);
+            link_submission(r, submission);
         except Exception as e:
             logging.error(exi(e));
         linked_count += 1;
@@ -71,7 +71,7 @@ def link_subs(r, count, delay):
     return linked_count;
 
 
-def link_submission(submission):
+def link_submission(r, submission):
     url = submission.url;
     if not is_comment(url):
         return;
