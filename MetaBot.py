@@ -17,7 +17,7 @@ blacklist = ["anime", "asianamerican", "askhistorians", "askscience", "aww", "be
 srcblacklist = ["depression", "lifeafternarcissists", "managedbynarcissists", "moderationlog", "raisedbynarcissists",
                 "rbnathome", "rbnbookclub", "rbnchildcare", "rbnfavors", "rbngames", "rbnlifeskills", "rbnmovienight",
                 "rbnrelationships", "rbnspouses", "suicidewatch", "switcharoo", "trolledbynarcissists", "unremovable",
-                "politic", "mlplite", "risingthreads", "uncensorship"];
+                "politic", "mlplite", "risingthreads", "uncensorship", "leagueofriot"];
 
 banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", "femradebates", "pcmasterrace",
           "purplepilldebate", "slrep", "funny"];
@@ -307,5 +307,5 @@ try:
 except (AttributeError, NameError, SyntaxError, TypeError) as e:
     logging.error(exi(e));
     time.sleep(86400);  # Sleep for 1 day so we don't restart.
-    # except Exception as e:
-    #	log_crash(e);
+except Exception as e:
+    log_crash(e);
