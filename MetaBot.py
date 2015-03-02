@@ -145,7 +145,7 @@ def link_submission(r, submission):
 def edit_post(totessubmission, original):
     if totessubmission is None:
         return False;
-    text = re.sub("\^Do.{1,}", "", totessubmission.body);
+    text = re.sub("\^Please.{1,}", "", totessubmission.body);
     text = text + format_link(original) + u"""
 
 
