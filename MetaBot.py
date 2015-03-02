@@ -3,7 +3,7 @@ import logging, os, praw, re, time, traceback, sys, urllib2;
 linked = [];
 linkedsrc = [];
 
-brigademsg = u"""^Do ^not ^vote ^or ^comment ^in ^linked ^threads. ^\([Info](/r/TotesMessenger/wiki/) ^| ^[Contact](/message/compose/?to=\/r\/TMTest))""";
+brigademsg = u"""^Please ^follow ^the ^rules ^of ^reddit ^and ^avoid ^voting ^or ^comment ^in ^linked ^threads. ^\([Info](/r/TotesMessenger/wiki/) ^| ^[Contact](/message/compose/?to=\/r\/TMTest))""";
 
 user = os.environ['REDDIT_USER'];
 blacklist = ["anime", "asianamerican", "askhistorians", "askscience", "aww", "benfrick", "bmw", "chicagosuburbs",
@@ -20,7 +20,7 @@ srcblacklist = ["depression", "lifeafternarcissists", "managedbynarcissists", "m
                 "politic", "mlplite", "risingthreads", "uncensorship"];
 
 banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", "femradebates", "pcmasterrace",
-          "purplepilldebate", "slrep"];
+          "purplepilldebate", "slrep", "funny"];
 
 blockedusers = ["amprobablypooping", "evilrising", "frontpagewatch", "frontpagewatchmirror", "moon-done", "politicbot",
                 "rising_threads_bot", "removal_rover"];
@@ -126,6 +126,7 @@ def link_submission(r, submission):
             return;
         else:
             comment(linkedp, submission);
+            linkedsrc.append(submission.id);
     elif isinstance(linkedp, praw.objects.Submission):
         linkedp.replace_more_comments(limit=None, threshold=0);
         if check_commented(linkedp):
@@ -134,6 +135,7 @@ def link_submission(r, submission):
             return;
         else:
             post(linkedp, submission);
+            linkedsrc.append(submission.id);
     else:
         logging.error("Not a Comment or Submission! (ID: " + id + ")");
 
