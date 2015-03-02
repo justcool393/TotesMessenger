@@ -3,7 +3,7 @@ import logging, os, praw, re, time, traceback, sys, urllib2;
 linked = [];
 linkedsrc = [];
 
-brigademsg = u"""^Please ^follow ^the ^rules ^of ^reddit ^and ^avoid ^voting ^or ^comment ^in ^linked ^threads. ^\([Info](/r/TotesMessenger/wiki/) ^| ^[Contact](/message/compose/?to=\/r\/TMTest))""";
+brigademsg = u"""^Please ^follow ^the ^rules ^of ^reddit ^and ^avoid ^voting ^or ^comment ^in ^linked ^threads. ^\([Info](/r/TotesMessenger/wiki/) ^| ^[Contact](/message/compose/?to=\/r\/TotesMessenger))""";
 
 user = os.environ['REDDIT_USER'];
 blacklist = ["anime", "asianamerican", "askhistorians", "askscience", "aww", "benfrick", "bmw", "chicagosuburbs",
