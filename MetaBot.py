@@ -20,7 +20,7 @@ srcblacklist = ["depression", "lifeafternarcissists", "managedbynarcissists", "m
                 "politic", "mlplite", "risingthreads", "uncensorship", "leagueofriot"];
 
 banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", "femradebates", "pcmasterrace",
-          "purplepilldebate", "slrep", "funny"];
+          "purplepilldebate", "slrep", "funny", "theredpill", "personalfinance", "india", "lifehacks"];
 
 blockedusers = ["amprobablypooping", "evilrising", "frontpagewatch", "frontpagewatchmirror", "moon-done", "politicbot",
                 "rising_threads_bot", "removal_rover"];
