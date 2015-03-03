@@ -10,7 +10,7 @@ blacklist = ["anime", "asianamerican", "askhistorians", "askscience", "aww", "be
              "cosplay", "cumberbitches", "d3gf", "deer", "depression", "depthhub", "drinkingdollars",
              "forwardsfromgrandma", "futurology", "geckos", "giraffes", "graphical_design", "grindsmygears",
              "indianfetish", "misc", "mixedbreeds", "news", "newtotf2", "omaha", "petstacking", "pigs",
-             "politicaldiscussion", "politics", "programmingcirclejerk", "raerthdev", "rants", "salvia", "science",
+             "politicaldiscussion", "programmingcirclejerk", "raerthdev", "rants", "salvia", "science",
              "seiko", "shoplifting", "sketches", "sociopath", "suicidewatch", "talesfromtechsupport", "unitedkingdom"];
 # Do not edit
 
@@ -20,7 +20,8 @@ srcblacklist = ["depression", "lifeafternarcissists", "managedbynarcissists", "m
                 "politic", "mlplite", "risingthreads", "uncensorship", "leagueofriot"];
 
 banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", "femradebates", "pcmasterrace",
-          "purplepilldebate", "slrep", "funny", "theredpill", "personalfinance", "india", "lifehacks"];
+          "purplepilldebate", "slrep", "funny", "theredpill", "personalfinance", "india", "lifehacks", "kotakuinaction",
+          "askmen"];
 
 blockedusers = ["amprobablypooping", "evilrising", "frontpagewatch", "frontpagewatchmirror", "moon-done", "politicbot",
                 "rising_threads_bot", "removal_rover"];
@@ -91,13 +92,16 @@ def link_submission(r, submission):
         return;
 
     lid = linkedp.id;
+    sid = submission.id;
 
     if submission.author is None:
         linked.append(lid);  # This is already deleted. Don't reply.
+        linkedsrc.append(sid);
         return;
 
     if submission.author.name.lower() in blockedusers:
         linked.append(lid);  # Block undelete, mod log and scraper bots.
+        linkedsrc.append(sid);
         return;
 
     if linkedp.subreddit.display_name.lower() in blacklist:
@@ -110,9 +114,10 @@ def link_submission(r, submission):
 
     if submission.subreddit.display_name.lower() in srcblacklist:
         linked.append(lid);  # Do not comment if it comes from blocked sources (NBD, SW, etc..)
+        linkedsrc.append(sid);
         return;
 
-    if lid in linked:
+    if lid in linked or get_bot_comment(linkedp) is not None:
         if submission.id not in linkedsrc:
             success = edit_post(get_bot_comment(linkedp), submission);
             if success:

@@ -30,8 +30,8 @@
       <file leaf-file-name="MetaBot.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/MetaBot.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-2.0410335" vertical-offset="1428" max-vertical-offset="5372">
-              <caret line="5" column="201" selection-start-line="5" selection-start-column="201" selection-end-line="5" selection-end-column="201" />
+            <state vertical-scroll-proportion="0.8947368" vertical-offset="0" max-vertical-offset="5457">
+              <caret line="36" column="0" selection-start-line="36" selection-start-column="0" selection-end-line="36" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -254,7 +254,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1616" height="876" extended-state="6" />
+    <frame x="-8" y="-8" width="1616" height="876" extended-state="7" />
     <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -325,8 +325,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/MetaBot.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-2.0410335" vertical-offset="1428" max-vertical-offset="5372">
-          <caret line="5" column="201" selection-start-line="5" selection-start-column="201" selection-end-line="5" selection-end-column="201" />
+        <state vertical-scroll-proportion="0.8947368" vertical-offset="0" max-vertical-offset="5457">
+          <caret line="36" column="0" selection-start-line="36" selection-start-column="0" selection-end-line="36" selection-end-column="0" />
           <folding />
         </state>
       </provider>
