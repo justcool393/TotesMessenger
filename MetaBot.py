@@ -3,6 +3,7 @@ import logging, os, praw, re, time, traceback, sys, urllib2;
 linked = [];
 linkedsrc = [];
 
+originallinkmsg = u"""This thread has been linked to from another place on reddit.""";
 brigademsg = u"""^Please ^follow ^the ^rules ^of ^reddit ^and ^avoid ^voting ^or ^commenting ^in ^linked ^threads. ^\([Info](/r/TotesMessenger/wiki/) ^| ^[Contact](/message/compose/?to=\/r\/TotesMessenger))""";
 
 user = os.environ['REDDIT_USER'];
@@ -21,7 +22,7 @@ srcblacklist = ["depression", "lifeafternarcissists", "managedbynarcissists", "m
 
 banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", "femradebates", "pcmasterrace",
           "purplepilldebate", "slrep", "funny", "theredpill", "personalfinance", "india", "lifehacks", "kotakuinaction",
-          "askmen"];
+          "askmen", "smashbros", "android", "neutralpolitics"];
 
 blockedusers = ["amprobablypooping", "evilrising", "frontpagewatch", "frontpagewatchmirror", "moon-done", "politicbot",
                 "rising_threads_bot", "removal_rover"];
@@ -209,12 +210,13 @@ def get_bot_comment(s):
 
 
 def format_comment(original):
-    cmt = u"""
-This thread has been linked to from another place on reddit.
+    cmt = originallinkmsg + u"""
+
 
 {link}
 
 """ + brigademsg;
+
     return cmt.format(link=format_link(original));
 
 
