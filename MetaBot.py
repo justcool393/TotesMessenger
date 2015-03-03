@@ -3,7 +3,7 @@ import logging, os, praw, re, time, traceback, sys, urllib2;
 linked = [];
 linkedsrc = [];
 
-brigademsg = u"""^Please ^follow ^the ^rules ^of ^reddit ^and ^avoid ^voting ^or ^comment ^in ^linked ^threads. ^\([Info](/r/TotesMessenger/wiki/) ^| ^[Contact](/message/compose/?to=\/r\/TotesMessenger))""";
+brigademsg = u"""^Please ^follow ^the ^rules ^of ^reddit ^and ^avoid ^voting ^or ^commenting ^in ^linked ^threads. ^\([Info](/r/TotesMessenger/wiki/) ^| ^[Contact](/message/compose/?to=\/r\/TotesMessenger))""";
 
 user = os.environ['REDDIT_USER'];
 blacklist = ["anime", "asianamerican", "askhistorians", "askscience", "aww", "benfrick", "bmw", "chicagosuburbs",
@@ -16,8 +16,8 @@ blacklist = ["anime", "asianamerican", "askhistorians", "askscience", "aww", "be
 
 srcblacklist = ["depression", "lifeafternarcissists", "managedbynarcissists", "moderationlog", "raisedbynarcissists",
                 "rbnathome", "rbnbookclub", "rbnchildcare", "rbnfavors", "rbngames", "rbnlifeskills", "rbnmovienight",
-                "rbnrelationships", "rbnspouses", "suicidewatch", "switcharoo", "trolledbynarcissists", "unremovable",
-                "politic", "mlplite", "risingthreads", "uncensorship", "leagueofriot"];
+                "rbnrelationships", "rbnspouses", "suicidewatch", "switcharoo", "switcheroo", "trolledbynarcissists",
+                "unremovable", "politic", "mlplite", "risingthreads", "uncensorship", "leagueofriot"];
 
 banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", "femradebates", "pcmasterrace",
           "purplepilldebate", "slrep", "funny", "theredpill", "personalfinance", "india", "lifehacks", "kotakuinaction",
@@ -154,7 +154,7 @@ def edit_post(totessubmission, original):
     text = text + format_link(original) + u"""
 
 
-    """ + brigademsg;
+""" + brigademsg;
     totessubmission.edit(text);
     return True;
 
@@ -234,9 +234,9 @@ def comment(c, original):
     try:
         c.reply(format_comment(original));
     except praw.errors.RateLimitExceeded:
-        logging.debug("Cannot comment (CK is too low)");
+        logging.debug("Cannot comment (comment karma is too low)");
     except Exception as e:
-        logging.error("Exception on comment add! (SID: " + str(c.id) + ")");
+        logging.error("Exception on comment add! (Comment ID: " + str(c.id) + ")");
         logging.error(str(e));
 
 
