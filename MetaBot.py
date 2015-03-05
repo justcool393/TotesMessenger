@@ -25,9 +25,9 @@ banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", 
           "askmen", "smashbros", "android", "neutralpolitics", "dota2", "wet_shavers"];
 
 blockedusers = ["amprobablypooping", "evilrising", "frontpagewatch", "frontpagewatchmirror", "moon-done", "politicbot",
-                "rising_threads_bot", "removal_rover"];
+                "rising_threads_bot", "removal_rover", "drugtaker"];
 
-#drugtaker - Meta bot NSFW marking evasion (final warning)
+#drugtaker - Meta bot NSFW marking evasion (banned)
 
 # Scraper and undelete are blocked from triggering the meta bot.
 
@@ -46,8 +46,8 @@ def main():
     last_checked = 0;
     times_zero = 1;
 
-    count = link_subs(r, 100, 60);
-    # Check the last 100 posts on startup
+    count = link_subs(r, 50, 60);
+    # Check the last 50 posts on startup
     while True:
         if time.time() - last_checked > check_at:
             last_checked = time.time();
