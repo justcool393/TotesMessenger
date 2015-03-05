@@ -18,7 +18,8 @@ blacklist = ["anime", "asianamerican", "askhistorians", "askscience", "aww", "be
 srcblacklist = ["depression", "lifeafternarcissists", "managedbynarcissists", "moderationlog", "raisedbynarcissists",
                 "rbnathome", "rbnbookclub", "rbnchildcare", "rbnfavors", "rbngames", "rbnlifeskills", "rbnmovienight",
                 "rbnrelationships", "rbnspouses", "suicidewatch", "switcharoo", "switcheroo", "trolledbynarcissists",
-                "unremovable", "politic", "mlplite", "risingthreads", "uncensorship", "leagueofriot", "benlargefanclub"];
+                "unremovable", "politic", "mlplite", "risingthreads", "uncensorship", "leagueofriot", "benlargefanclub",
+                "fitnesscirclejerk"];
 
 banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", "femradebates", "pcmasterrace",
           "purplepilldebate", "slrep", "funny", "theredpill", "personalfinance", "india", "lifehacks", "kotakuinaction",
@@ -320,7 +321,8 @@ def setup_logging():
 
 try:
     setup_logging();
-    
+    logging.info("Starting in 20 minutes...");
+    time.sleep(20*60);
     main();
 except (AttributeError, NameError, SyntaxError, TypeError) as e:
     logging.error(exi(e));
