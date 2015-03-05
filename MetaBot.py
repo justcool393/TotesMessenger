@@ -26,9 +26,12 @@ banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", 
 
 blockedusers = ["amprobablypooping", "evilrising", "frontpagewatch", "frontpagewatchmirror", "moon-done", "politicbot",
                 "rising_threads_bot", "removal_rover"];
+
+#drugtaker - Meta bot NSFW marking evasion (final warning)
+
 # Scraper and undelete are blocked from triggering the meta bot.
 
-nsfwreddits = ["srsshillwatch", "gonewild"];
+nsfwreddits = ["srsshillwatch", "srsshillswatch", "srshillwatch", "gonewild"];
 
 test_reddits = ["justcool393", "tmtest", "totesmessenger"];
 
