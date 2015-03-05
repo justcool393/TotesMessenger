@@ -22,19 +22,22 @@ srcblacklist = ["depression", "lifeafternarcissists", "managedbynarcissists", "m
 
 banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", "femradebates", "pcmasterrace",
           "purplepilldebate", "slrep", "funny", "theredpill", "personalfinance", "india", "lifehacks", "kotakuinaction",
-          "askmen", "smashbros", "android", "neutralpolitics"];
+          "askmen", "smashbros", "android", "neutralpolitics", "dota2"];
 
 blockedusers = ["amprobablypooping", "evilrising", "frontpagewatch", "frontpagewatchmirror", "moon-done", "politicbot",
                 "rising_threads_bot", "removal_rover"];
 # Scraper and undelete are blocked from triggering the meta bot.
 
+nsfwreddits = ["srsshillwatch", "gonewild"];
+
 test_reddits = ["justcool393", "tmtest", "totesmessenger"];
+
 
 
 def main():
     r = praw.Reddit("Links to reddit posts from other places in reddit", domain="api.reddit.com", log_requests=0);
     r.login(user, os.environ['REDDIT_PASS']);
-    logging.info("Logged in and started linking");
+    logging.info("Logged in to reddit...");
 
     check_at = 3600;
     last_checked = 0;
@@ -244,7 +247,11 @@ def comment(c, original):
 
 def format_link(post):
     srurl = post.subreddit.url;
-    return u"- [" + srurl[:-1] + "] " + u"[" + post.title + "](" + np(post.permalink) + ")\n";
+    nsfw = post.subreddit.name.lower() in nsfwreddits or post.over_18 or post.subreddit.over18;
+    text = u"- [" + srurl[:-1] + "] ";
+    if nsfw:
+        text = text + u"[NSFW] ";
+    return text + u"[" + post.title + "](" + np(post.permalink) + ")\n";
 
 
 def unnp(link):
