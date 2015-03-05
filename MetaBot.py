@@ -4,7 +4,7 @@ linked = [];
 linkedsrc = [];
 
 originallinkmsg = u"""This thread has been linked to from another place on reddit.""";
-brigademsg = u"""^Please ^follow ^the ^rules ^of ^reddit ^and ^avoid ^voting ^or ^commenting ^in ^linked ^threads. ^\([Info](/r/TotesMessenger/wiki/) ^| ^[Contact](/message/compose/?to=\/r\/TotesMessenger))""";
+brigademsg = u"""*^If ^you ^follow ^any ^of ^the ^above ^links, ^respect ^the ^rules ^of ^reddit ^and ^don't ^vote. ^\([Info](/r/TotesMessenger/wiki/) ^| ^[Contact](/message/compose/?to=\/r\/TotesMessenger))*""";
 
 user = os.environ['REDDIT_USER'];
 blacklist = ["anime", "asianamerican", "askhistorians", "askscience", "aww", "benfrick", "bmw", "chicagosuburbs",
