@@ -22,7 +22,7 @@ srcblacklist = ["depression", "lifeafternarcissists", "managedbynarcissists", "m
 
 banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", "femradebates", "pcmasterrace",
           "purplepilldebate", "slrep", "funny", "theredpill", "personalfinance", "india", "lifehacks", "kotakuinaction",
-          "askmen", "smashbros", "android", "neutralpolitics", "dota2"];
+          "askmen", "smashbros", "android", "neutralpolitics", "dota2", "wet_shavers"];
 
 blockedusers = ["amprobablypooping", "evilrising", "frontpagewatch", "frontpagewatchmirror", "moon-done", "politicbot",
                 "rising_threads_bot", "removal_rover"];
@@ -31,7 +31,7 @@ blockedusers = ["amprobablypooping", "evilrising", "frontpagewatch", "frontpagew
 
 # Scraper and undelete are blocked from triggering the meta bot.
 
-nsfwreddits = ["srsshillwatch", "srsshillswatch", "srshillwatch", "gonewild"];
+nsfwreddits = ["srsshillwatch", "srsshillswatch", "srshillswatch", "srshillwatch", "gonewild"];
 
 test_reddits = ["justcool393", "tmtest", "totesmessenger"];
 
