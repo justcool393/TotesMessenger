@@ -23,7 +23,8 @@ srcblacklist = ["depression", "lifeafternarcissists", "managedbynarcissists", "m
 
 banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", "femradebates", "pcmasterrace",
           "purplepilldebate", "slrep", "funny", "theredpill", "personalfinance", "india", "lifehacks", "kotakuinaction",
-          "askmen", "smashbros", "android", "neutralpolitics", "dota2", "wet_shavers"];
+          "askmen", "smashbros", "android", "neutralpolitics", "dota2", "wet_shavers", "dogecoin", "askphilosophy",
+          "suits"];
 
 blockedusers = ["amprobablypooping", "evilrising", "frontpagewatch", "frontpagewatchmirror", "moon-done", "politicbot",
                 "rising_threads_bot", "removal_rover", "drugtaker"];
@@ -158,7 +159,7 @@ def link_submission(r, submission):
 def edit_post(totessubmission, original):
     if totessubmission is None:
         return False;
-    text = re.sub("\^Please.{1,}", "", totessubmission.body);
+    text = re.sub("\*\^If.{1,}", "", totessubmission.body);
     text = text + format_link(original) + u"""
 
 
