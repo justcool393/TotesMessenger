@@ -23,7 +23,7 @@ srcblacklist = ["depression", "lifeafternarcissists", "managedbynarcissists", "m
                 "rbnathome", "rbnbookclub", "rbnchildcare", "rbnfavors", "rbngames", "rbnlifeskills", "rbnmovienight",
                 "rbnrelationships", "rbnspouses", "suicidewatch", "switcharoo", "switcheroo", "trolledbynarcissists",
                 "unremovable", "politic", "mlplite", "risingthreads", "uncensorship", "leagueofriot", "benlargefanclub",
-                "fitnesscirclejerk"];
+                "fitnesscirclejerk", "taiwancirclejerk"];
 
 banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", "femradebates", "pcmasterrace",
           "purplepilldebate", "slrep", "funny", "theredpill", "personalfinance", "india", "lifehacks", "kotakuinaction",
@@ -52,20 +52,19 @@ def main():
     logging.info("Logged in to reddit...");
 
     check_at = 3600;
-    last_checked = 0;
+    last_logged = 0;
     times_zero = 1;
 
     count = link_subs(r, 100, 120); # Check the last 100 posts on startup
     while True:
-        if (time.time() - last_checked) >= check_at:
-            last_checked = time.time();
+        if (time.time() - last_logged) >= (last_logged + check_at):
+            last_logged = time.time();
             if count == 0:
                 times_zero += 1;
             else:
                 logging.info("Linked " + str(count) + " in the last " + str((check_at * times_zero) / 60) + " minutes");
                 count = 0;
                 times_zero = 1;
-
         count += link_subs(r, 25, 60);
 
 
