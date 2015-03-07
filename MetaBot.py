@@ -2,9 +2,12 @@ import logging, os, praw, re, time, traceback, sys, urllib2;
 
 linked = [];
 linkedsrc = [];
+skipped = [];
+skippedsrc = [];
 
-originallinkmsg = u"""This thread has been linked to from another place on reddit.""";
-brigademsg = u"""*^If ^you ^follow ^any ^of ^the ^above ^links, ^respect ^the ^rules ^of ^reddit ^and ^don't ^vote. ^\([Info](/r/TotesMessenger/wiki/) ^/ ^[Contact](/message/compose/?to=\/r\/TotesMessenger))* [](#bot)""";
+ARCHIVE_TIME = 15778463; # currently 6 months (in seconds)
+HEADER = u"""This thread has been linked to from another place on reddit.""";
+FOOTER = u"""*^If ^you ^follow ^any ^of ^the ^above ^links, ^respect ^the ^rules ^of ^reddit ^and ^don't ^vote. ^\([Info](/r/TotesMessenger/wiki/) ^/ ^[Contact](/message/compose/?to=\/r\/TotesMessenger))* [](#bot)""";
 
 user = os.environ['REDDIT_USER'];
 blacklist = ["anime", "asianamerican", "askhistorians", "askscience", "aww", "benfrick", "bmw", "chicagosuburbs",
@@ -29,7 +32,10 @@ banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", 
 blockedusers = ["amprobablypooping", "evilrising", "frontpagewatch", "frontpagewatchmirror", "moon-done", "politicbot",
                 "rising_threads_bot", "removal_rover", "drugtaker"];
 
-#drugtaker - Meta bot NSFW marking evasion (banned)
+metabots = [user, "totes_meta_bot", "meta_bot2", "originallinkbot"];
+
+# Ban list:
+# drugtaker - Meta bot NSFW marking evasion
 
 # Scraper and undelete are blocked from triggering the meta bot.
 
@@ -48,10 +54,9 @@ def main():
     last_checked = 0;
     times_zero = 1;
 
-    count = link_subs(r, 50, 60);
-    # Check the last 50 posts on startup
+    count = link_subs(r, 100, 120); # Check the last 100 posts on startup
     while True:
-        if time.time() - last_checked > check_at:
+        if (time.time() - last_checked) >= check_at:
             last_checked = time.time();
             if count == 0:
                 times_zero += 1;
@@ -71,10 +76,10 @@ def link_subs(r, count, delay):
         #    continue;
 
         try:
-            link_submission(r, submission);
-        except Exception as e:
-            logging.error(exi(e));
-        linked_count += 1;
+            if link_submission(r, submission):
+                linked_count += 1;
+        except Exception:
+            logging.error(exi());
         time.sleep(3);
 
     time.sleep(delay);
@@ -91,11 +96,11 @@ def link_submission(r, submission):
     except praw.errors.ClientException as e:
         logging.error("Link is not a reddit post (id: " + submission.id + ")");
 
-        logging.error(exi(e));
+        logging.error(exi());
         return;
-    except Exception as e:
+    except Exception:
         logging.error("Could not get comment!");
-        logging.error(exi(e));
+        logging.error(exi());
 
     if linkedp is None:
         return;
@@ -103,63 +108,55 @@ def link_submission(r, submission):
     lid = linkedp.id;
     sid = submission.id;
 
-    if submission.author is None:
-        linked.append(lid);  # This is already deleted. Don't reply.
-        linkedsrc.append(sid);
-        return;
+    # Skip conditions: Already deleted, undelete/scraper/mod log bots, blacklisted, banned/archived,
+    # archived, in source blacklist
 
-    if submission.author.name.lower() in blockedusers:
-        linked.append(lid);  # Block undelete, mod log and scraper bots.
-        linkedsrc.append(sid);
-        return;
+    srlower = linkedp.subreddit.display_name.lower();
 
-    if linkedp.subreddit.display_name.lower() in blacklist:
-        linked.append(lid);  # Do not comment in blacklisted subreddits (reddit rules)
-        return;
+    if linkedp.author is None or srlower in blacklist or srlower in banned or linkedp.created < (time.time() - ARCHIVE_TIME):
+        skipped.append(lid);
 
-    if linkedp.subreddit.display_name.lower() in banned:
-        linked.append(lid);  # Do not attempt to comment in banned/archived subreddits
-        return;
+    if submission.subreddit.display_name.lower() in srcblacklist or submission.author.name.lower() in blockedusers:
+        skippedsrc.append(sid);
 
-    if submission.subreddit.display_name.lower() in srcblacklist:
-        linked.append(lid);  # Do not comment if it comes from blocked sources (NBD, SW, etc..)
-        linkedsrc.append(sid);
-        return;
+    if lid in skipped or sid in skippedsrc:
+        return False;
 
-    if lid in linked or get_bot_comment(linkedp) is not None:
-        if sid not in linkedsrc:
-            success = edit_post(get_bot_comment(linkedp), submission);
-            if success:
-                linkedsrc.append(sid);
-        return;
+    if sid in linkedsrc:
+        return False;
+
+
+    if lid in linked or check_commmented(linkedp):
+        success = edit_post(get_bot_comment(linkedp), submission);
+        if success:
+            linkedsrc.append(sid);
+        return success;
+
+    if check_commmented(linkedp):
+        linked.append(lid);
+        linkedsrc.append(lid);
+        return False;
 
     if isinstance(linkedp, praw.objects.Comment):
-        if check_commment_replies(linkedp):
-            linked.append(lid);
-            linkedsrc.append(sid);
-            return;
-        else:
-            comment(linkedp, submission);
-            linkedsrc.append(sid);
+        linked.append(lid);
+        linkedsrc.append(sid);
+        comment(linkedp, submission);
     elif isinstance(linkedp, praw.objects.Submission):
-        linkedp.replace_more_comments(limit=None, threshold=0);
-        if check_commented(linkedp):
-            linkedsrc.append(sid);
-            linked.append(lid);
-            return;
-        else:
-            post(linkedp, submission);
-            linkedsrc.append(sid);
+        post(linkedp, submission);
     else:
         logging.error("Not a Comment or Submission! (ID: " + id + ")");
+        return False;
 
     linked.append(lid);
+    linkedsrc.append(sid);
+    return True;
 
 
 def edit_post(totessubmission, original):
     if totessubmission is None:
         return False;
     text = re.sub("\*\^If.{1,}", "", totessubmission.body);
+    text = re.sub("\^Please.{1,}", "", text); # substitute old footer as well
     text = text + format_link(original) + u"""
 
 
@@ -176,27 +173,31 @@ def get_linked(r, link):
     return r.get_submission(link);
 
 
-def check_commment_replies(c):
-    for co in c.replies:
+def check_commmented(c):
+    if isinstance(c, praw.objects.Comment):
+        comments = c.replies;
+    elif isinstance(c, praw.objects.Submission):
+        c.replace_more_comments(limit=None, threshold=0);
+        comments = praw.helpers.flatten_tree(c.comments);
+
+    for co in comments:
         if co.author is None:
             continue;
-        if co.author.name == user:
-            return True;
-        if co.author.name == "totes_meta_bot":
+        if co.author.name.lower() in metabots:
             return True;
     return False;
 
 
-def check_commented(s):
-    flat_comments = praw.helpers.flatten_tree(s.comments);
-    for c in flat_comments:
-        if c.author is None:
-            continue;
-        if c.author.name == user:
-            return True;
-        if c.author.name == "totes_meta_bot":
-            return True;
-    return False;
+#def check_commented(s):
+#    flat_comments = praw.helpers.flatten_tree(s.comments);
+#    for c in flat_comments:
+#        if c.author is None:
+#            continue;
+#        if c.author.name == user:
+#            return True;
+#        if c.author.name == "totes_meta_bot":
+#            return True;
+#    return False;
 
 
 def get_bot_comment(s):
@@ -218,12 +219,11 @@ def get_bot_comment(s):
 
 
 def format_comment(original):
-    cmt = originallinkmsg + u"""
-
+    cmt = HEADER + u"""
 
 {link}
 
-""" + brigademsg;
+""" + FOOTER;
 
     return cmt.format(link=format_link(original));
 
@@ -232,44 +232,45 @@ def post(s, original):
     try:
         s.add_comment(format_comment(original));
     except praw.errors.RateLimitExceeded:
-        logging.debug("Cannot comment on post (comment karma is too low)");
+        logging.debug("Can't comment (comment karma is too low)");
     except praw.errors.APIException as e:
         logging.warning(str(e));
-    except Exception as e:
-        logging.error("Exception on comment add! (Submission ID: " + str(s.id) + ")");
-        logging.error(exi(e));
+    except Exception:
+        logging.error("Error adding comment (SID: " + str(s.id) + ")");
+        logging.error(exi());
 
 
 def comment(c, original):
     try:
         c.reply(format_comment(original));
     except praw.errors.RateLimitExceeded:
-        logging.debug("Cannot comment (comment karma is too low)");
-    except Exception as e:
-        logging.error("Exception on comment add! (Comment ID: " + str(c.id) + ")");
+        logging.debug("Can't comment (comment karma is too low)");
+    except praw.errors.APIException as e:
+        logging.warning(str(e));
+    except Exception:
+        logging.error("Error adding comment (CID: " + str(c.id) + ")");
         logging.error(str(e));
 
 
 def format_link(post):
     srurl = post.subreddit.url;
-    nsfw = post.subreddit.name.lower() in nsfwreddits or post.over_18 or post.subreddit.over18;
+    nsfw = post.subreddit.name.lower() in nsfwreddits or post.subreddit.over18 or post.over_18;
     text = u"- [" + srurl[:-1] + "] ";
     if nsfw:
         text = text + u"[NSFW] ";
     return text + u"[" + post.title + "](" + np(post.permalink) + ")\n";
 
+def changesubdomain(link, sub):
+    l = re.sub(r"http[s]?://[a-z]{0,3}\.?reddit\.com", "", link);
+    return "http://" + sub + ".reddit.com" + l;
 
 def unnp(link):
-    l = re.sub(r"http[s]?://[a-z]{0,3}\.?reddit\.com", "", link);
-    return "http://www.reddit.com" + l;
+    return changesubdomain(link, "www");
 
 
 def np(link):
-    l = re.sub(r"http[s]?://[a-z]{0,3}\.?reddit\.com", "", link);
-    return "http://np.reddit.com" + l;
+    return changesubdomain(link, "np");
 
-
-# return re.sub(r"//[a-z]{0,3}\.?reddit", "//np.reddit", link);
 
 def get_cid(url):
     l = re.sub(r"http[s]?://[a-z]{0,3}\.?reddit\.com/r/.{1,20}/comments/.{6,8}/.*/", "", url);
@@ -288,7 +289,7 @@ def get_object(r, url):
         if o is None:
             raise Exception("Comment is none! (URL: " + url + ")");
 
-        return o;  # Get the comment (and hopefully not the link)
+        return o;
     else:
         return obj;
 
@@ -298,15 +299,15 @@ def is_comment(link):
     return a.match(link);
 
 
-def log_crash(e):
+def log_crash():
     logging.error("Error occurred in the bot; restarting in 15 seconds...");
     logging.error("Details: ");
-    logging.error(exi(e));
+    logging.error(exi());
     time.sleep(15);
-    sys.exit(1);  # Signal to the host that we crashed
+    sys.exit(1);
 
 
-def exi(ex):
+def exi():
     return traceback.format_exc();
 
 
@@ -326,7 +327,7 @@ try:
     time.sleep(20*60);
     main();
 except (AttributeError, NameError, SyntaxError, TypeError) as e:
-    logging.error(exi(e));
+    logging.error(exi());
     time.sleep(86400);  # Sleep for 1 day so we don't restart.
-except Exception as e:
-    log_crash(e);
+except Exception:
+    log_crash();
