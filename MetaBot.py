@@ -323,8 +323,6 @@ def setup_logging():
 
 try:
     setup_logging();
-    logging.info("Starting in 20 minutes...");
-    time.sleep(20*60);
     main();
 except (AttributeError, NameError, SyntaxError, TypeError) as e:
     logging.error(exi());
