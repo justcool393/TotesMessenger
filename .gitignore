@@ -1,0 +1,7 @@
+#Ignore PyCharm files
+.idea/
+
+#Other files
+Procfile
+requirements.txt
+*.log
