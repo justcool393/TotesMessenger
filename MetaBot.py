@@ -24,7 +24,7 @@ srcblacklist = ["depression", "lifeafternarcissists", "managedbynarcissists", "m
 banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", "femradebates", "pcmasterrace",
           "purplepilldebate", "slrep", "funny", "theredpill", "personalfinance", "india", "lifehacks", "kotakuinaction",
           "askmen", "smashbros", "android", "neutralpolitics", "dota2", "wet_shavers", "dogecoin", "askphilosophy",
-          "suits"];
+          "suits", "japanlife", "photography", "hiphopheads"];
 
 blockedusers = ["amprobablypooping", "evilrising", "frontpagewatch", "frontpagewatchmirror", "moon-done", "politicbot",
                 "rising_threads_bot", "removal_rover", "drugtaker"];
@@ -127,29 +127,29 @@ def link_submission(r, submission):
         return;
 
     if lid in linked or get_bot_comment(linkedp) is not None:
-        if submission.id not in linkedsrc:
+        if sid not in linkedsrc:
             success = edit_post(get_bot_comment(linkedp), submission);
             if success:
-                linkedsrc.append(submission.id);
+                linkedsrc.append(sid);
         return;
 
     if isinstance(linkedp, praw.objects.Comment):
         if check_commment_replies(linkedp):
             linked.append(lid);
-            linkedsrc.append(submission.id);
+            linkedsrc.append(sid);
             return;
         else:
             comment(linkedp, submission);
-            linkedsrc.append(submission.id);
+            linkedsrc.append(sid);
     elif isinstance(linkedp, praw.objects.Submission):
         linkedp.replace_more_comments(limit=None, threshold=0);
         if check_commented(linkedp):
-            linkedsrc.append(submission.id);
+            linkedsrc.append(sid);
             linked.append(lid);
             return;
         else:
             post(linkedp, submission);
-            linkedsrc.append(submission.id);
+            linkedsrc.append(sid);
     else:
         logging.error("Not a Comment or Submission! (ID: " + id + ")");
 
