@@ -116,7 +116,10 @@ def link_submission(r, submission):
     if linkedp.author is None or srlower in blacklist or srlower in banned or linkedp.created < (time.time() - ARCHIVE_TIME):
         skipped.append(lid);
 
-    if submission.subreddit.display_name.lower() in srcblacklist or submission.author.name.lower() in blockedusers:
+    if submission.subreddit.display_name.lower() in srcblacklist or submission.author.name is None:
+        skippedsrc.append(sid);
+
+    if submission.author.name.lower() in blockedusers:
         skippedsrc.append(sid);
 
     if lid in skipped or sid in skippedsrc:
