@@ -6,6 +6,7 @@ skipped = [];
 skippedsrc = [];
 
 ARCHIVE_TIME = 15778463; # currently 6 months (in seconds)
+CJ_HEADER = u"""This dank meme has been linked to from another place on le reddit.""";
 HEADER = u"""This thread has been linked to from another place on reddit.""";
 FOOTER = u"""*^If ^you ^follow ^any ^of ^the ^above ^links, ^respect ^the ^rules ^of ^reddit ^and ^don't ^vote. ^\([Info](/r/TotesMessenger/wiki/) ^/ ^[Contact](/message/compose/?to=\/r\/TotesMessenger))* [](#bot)""";
 
@@ -143,9 +144,9 @@ def link_submission(r, submission):
     if isinstance(linkedp, praw.objects.Comment):
         linked.append(lid);
         linkedsrc.append(sid);
-        comment(linkedp, submission);
+        comment(linkedp, submission, srlower == "circlejerk");
     elif isinstance(linkedp, praw.objects.Submission):
-        post(linkedp, submission);
+        post(linkedp, submission, srlower == "circlejerk");
     else:
         logging.error("Not a Comment or Submission! (ID: " + id + ")");
         return False;
@@ -221,8 +222,12 @@ def get_bot_comment(s):
     return None;
 
 
-def format_comment(original):
-    cmt = HEADER + u"""
+def format_comment(original, isrcirclejerk):
+    if isrcirclejerk:
+        cmt = CJ_HEADER;
+    else:
+        cmt = HEADER;
+    cmt = cmt + u"""
 
 {link}
 
@@ -231,9 +236,9 @@ def format_comment(original):
     return cmt.format(link=format_link(original));
 
 
-def post(s, original):
+def post(s, original, isrcirclejerk):
     try:
-        s.add_comment(format_comment(original));
+        s.add_comment(format_comment(original, isrcirclejerk));
     except praw.errors.RateLimitExceeded:
         logging.debug("Can't comment (comment karma is too low)");
     except praw.errors.APIException as e:
@@ -243,9 +248,9 @@ def post(s, original):
         logging.error(exi());
 
 
-def comment(c, original):
+def comment(c, original, isrcirclejerk):
     try:
-        c.reply(format_comment(original));
+        c.reply(format_comment(original, isrcirclejerk));
     except praw.errors.RateLimitExceeded:
         logging.debug("Can't comment (comment karma is too low)");
     except praw.errors.APIException as e:
