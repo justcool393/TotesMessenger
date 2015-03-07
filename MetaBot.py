@@ -326,6 +326,8 @@ def setup_logging():
 
 try:
     setup_logging();
+    logging.info("40 minute sleep timer starting...");
+    time.sleep(40*60);
     main();
 except (AttributeError, NameError, SyntaxError, TypeError) as e:
     logging.error(exi());
