@@ -31,7 +31,7 @@ banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", 
           "suits", "japanlife", "photography", "hiphopheads", "apple", "lifeprotips", "nba"];
 
 blockedusers = ["amprobablypooping", "evilrising", "frontpagewatch", "frontpagewatchmirror", "moon-done", "politicbot",
-                "rising_threads_bot", "removal_rover", "drugtaker", "knowyourshit"];
+                "rising_threads_bot", "removal_rover", "drugtaker", "know_your_shit"];
 
 # metabots = [user, "totesmessenger", "totes_meta_bot", "meta_bot", "meta_bot2", "originallinkbot"];
 
@@ -61,17 +61,23 @@ def main():
     logging.info("Logged in to reddit...");
 
     check_at = 3600;
+    save_at = 60;
     last_logged = 0;
+    last_saved = 0;
     times_zero = 1;
 
     count = link_subs(r, 100, 120); # Check the last 100 posts on startup
     while True:
-        if time.time() >= (last_logged + check_at):
-            last_logged = time.time();
+        if time.time() >= (last_saved + save_at):
+            last_saved = time.time();
             save_list("linked.lst", linked);
             save_list("linkedsrc.lst", linkedsrc);
             save_list("skipped.lst", skipped);
             save_list("skippedsrc.lst", skippedsrc);
+
+        if time.time() >= (last_logged + check_at):
+
+            last_logged = time.time();
             if count == 0:
                 times_zero += 1;
             else:
