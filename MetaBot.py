@@ -8,7 +8,7 @@ skippedsrc = [];
 ARCHIVE_TIME = 15778463; # currently 6 months (in seconds)
 CJ_HEADER = u"""This dank meme has been linked to from another place on le reddit.""";
 HEADER = u"""This thread has been linked to from another place on reddit.""";
-FOOTER = u"""*^If ^you ^follow ^any ^of ^the ^above ^links, ^respect ^the ^rules ^of ^reddit ^and ^don't ^vote. ^\([Info](/r/TotesMessenger/wiki/) ^/ ^[Contact](/message/compose/?to=\/r\/TotesMessenger))* [](#bot)""";
+FOOTER = u"""[](#footer)*^If ^you ^follow ^any ^of ^the ^above ^links, ^respect ^the ^rules ^of ^reddit ^and ^don't ^vote. ^\([Info](/r/TotesMessenger/wiki/) ^/ ^[Contact](/message/compose/?to=\/r\/TotesMessenger))* [](#bot)""";
 
 user = os.environ['REDDIT_USER'];
 blacklist = ["anime", "asianamerican", "askhistorians", "askscience", "aww", "benfrick", "bmw", "chicagosuburbs",
@@ -28,10 +28,10 @@ srcblacklist = ["depression", "lifeafternarcissists", "managedbynarcissists", "m
 banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", "femradebates", "pcmasterrace",
           "purplepilldebate", "slrep", "funny", "theredpill", "personalfinance", "india", "lifehacks", "kotakuinaction",
           "askmen", "smashbros", "android", "neutralpolitics", "dota2", "wet_shavers", "dogecoin", "askphilosophy",
-          "suits", "japanlife", "photography", "hiphopheads"];
+          "suits", "japanlife", "photography", "hiphopheads", "apple", "lifeprotips", "nba"];
 
 blockedusers = ["amprobablypooping", "evilrising", "frontpagewatch", "frontpagewatchmirror", "moon-done", "politicbot",
-                "rising_threads_bot", "removal_rover", "drugtaker"];
+                "rising_threads_bot", "removal_rover", "drugtaker", "knowyourshit"];
 
 # metabots = [user, "totesmessenger", "totes_meta_bot", "meta_bot", "meta_bot2", "originallinkbot"];
 
