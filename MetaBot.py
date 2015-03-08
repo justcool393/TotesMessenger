@@ -162,13 +162,14 @@ def link_submission(r, submission):
 def edit_post(totessubmission, original):
     if totessubmission is None:
         return False;
-    text = re.sub("\*\^If.{1,}", "", totessubmission.body);
+    text = re.sub("\[\]\(#footer\).{1,}", "", totessubmission.body);
+    text = re.sub("\*\^If.{1,}", "", text);
     text = re.sub("\^Please.{1,}", "", text); # substitute old footer as well
     text = re.sub("Do not vote.{1,}", "", text); # substitute original footer as well
     text = text + format_link(original) + u"""
 
 
-""" + brigademsg;
+""" + FOOTER;
     totessubmission.edit(text);
     return True;
 
