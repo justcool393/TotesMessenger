@@ -33,7 +33,7 @@ banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", 
 blockedusers = ["amprobablypooping", "evilrising", "frontpagewatch", "frontpagewatchmirror", "moon-done", "politicbot",
                 "rising_threads_bot", "removal_rover", "drugtaker"];
 
-metabots = [user, "totes_meta_bot", "meta_bot2", "originallinkbot"];
+metabots = [user, "totesmessenger", "totes_meta_bot", "meta_bot", "meta_bot2", "originallinkbot"];
 
 # Ban list:
 # drugtaker - Meta bot NSFW marking evasion
@@ -57,7 +57,7 @@ def main():
 
     count = link_subs(r, 100, 120); # Check the last 100 posts on startup
     while True:
-        if (time.time() - last_logged) >= (last_logged + check_at):
+        if time.time() >= (last_logged + check_at):
             last_logged = time.time();
             if count == 0:
                 times_zero += 1;
