@@ -33,12 +33,10 @@ banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", 
 blockedusers = ["amprobablypooping", "evilrising", "frontpagewatch", "frontpagewatchmirror", "moon-done", "politicbot",
                 "rising_threads_bot", "removal_rover", "drugtaker"];
 
-metabots = [user, "totesmessenger", "totes_meta_bot", "meta_bot", "meta_bot2", "originallinkbot"];
+# metabots = [user, "totesmessenger", "totes_meta_bot", "meta_bot", "meta_bot2", "originallinkbot"];
 
 # Ban list:
 # drugtaker - Meta bot NSFW marking evasion
-
-# Scraper and undelete are blocked from triggering the meta bot.
 
 nsfwreddits = ["srsshillwatch", "srsshillswatch", "srshillswatch", "srshillwatch", "gonewild"];
 
@@ -62,7 +60,7 @@ def main():
             if count == 0:
                 times_zero += 1;
             else:
-                logging.info("Linked " + str(count) + " in the last " + str((check_at * times_zero) / 60) + " minutes");
+                logging.info("Linked " + str(count) + " in the last " + str((check_at * times_zero) / 60 / 60) + " hour(s)");
                 count = 0;
                 times_zero = 1;
         count += link_subs(r, 25, 60);
@@ -95,7 +93,6 @@ def link_submission(r, submission):
         linkedp = get_object(r, url);
     except praw.errors.ClientException as e:
         logging.error("Link is not a reddit post (id: " + submission.id + ")");
-
         logging.error(exi());
         return;
     except Exception:
@@ -111,13 +108,19 @@ def link_submission(r, submission):
     # Skip conditions: Already deleted, undelete/scraper/mod log bots, blacklisted, banned/archived,
     # archived, in source blacklist
 
+    if linkedp is None or linkedp.subreddit is None:
+        skipped.append(lid);
+        return False;
+
     srlower = linkedp.subreddit.display_name.lower();
 
     if linkedp.author is None or srlower in blacklist or srlower in banned or linkedp.created < (time.time() - ARCHIVE_TIME):
         skipped.append(lid);
+        return False;
 
     if submission.subreddit.display_name.lower() in srcblacklist or submission.author.name is None:
         skippedsrc.append(sid);
+        return False;
 
     if submission.author.name.lower() in blockedusers:
         skippedsrc.append(sid);
@@ -133,6 +136,7 @@ def link_submission(r, submission):
         success = edit_post(get_bot_comment(linkedp), submission);
         if success:
             linkedsrc.append(sid);
+        linked.append(lid);
         return success;
 
     if check_commmented(linkedp):
@@ -160,6 +164,7 @@ def edit_post(totessubmission, original):
         return False;
     text = re.sub("\*\^If.{1,}", "", totessubmission.body);
     text = re.sub("\^Please.{1,}", "", text); # substitute old footer as well
+    text = re.sub("Do not vote.{1,}", "", text); # substitute original footer as well
     text = text + format_link(original) + u"""
 
 
@@ -186,7 +191,7 @@ def check_commmented(c):
     for co in comments:
         if co.author is None:
             continue;
-        if co.author.name.lower() in metabots:
+        if co.author.name.lower() == user.lower():
             return True;
     return False;
 
@@ -208,7 +213,7 @@ def get_bot_comment(s):
         for c in s.replies:
             if c.author is None:
                 continue;
-            if c.author.name == user:
+            if c.author.name.lower() == user.lower():
                 return c;
     else:
         s.replace_more_comments(limit=None, threshold=0);
@@ -216,7 +221,7 @@ def get_bot_comment(s):
         for c in flat_comments:
             if c.author is None:
                 continue;
-            if c.author.name == user:
+            if c.author.name.lower() == user.lower():
                 return c;
     return None;
 
