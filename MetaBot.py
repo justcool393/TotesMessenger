@@ -45,6 +45,17 @@ test_reddits = ["justcool393", "tmtest", "totesmessenger"];
 
 
 def main():
+    global linked;
+    global linkedsrc;
+    global skipped;
+    global skippedsrc;
+    create_files();
+
+    linked = load_list("linked.lst");
+    linkedsrc = load_list("linkedsrc.lst");
+    skipped = load_list("skipped.lst");
+    skippedsrc = load_list("skippedsrc.lst");
+
     r = praw.Reddit("Links to reddit posts from other places in reddit", domain="api.reddit.com", log_requests=0);
     r.login(user, os.environ['REDDIT_PASS']);
     logging.info("Logged in to reddit...");
@@ -57,6 +68,10 @@ def main():
     while True:
         if time.time() >= (last_logged + check_at):
             last_logged = time.time();
+            save_list("linked.lst", linked);
+            save_list("linkedsrc.lst", linkedsrc);
+            save_list("skipped.lst", skipped);
+            save_list("skippedsrc.lst", skippedsrc);
             if count == 0:
                 times_zero += 1;
             else:
@@ -65,6 +80,15 @@ def main():
                 times_zero = 1;
         count += link_subs(r, 25, 60);
 
+def create_files():
+    f = open("linked.lst", "a");
+    f.close();
+    f = open("linkedsrc.lst", "a");
+    f.close();
+    f = open("skipped.lst", "a");
+    f.close();
+    f = open("skippedsrc.lst", "a");
+    f.close();
 
 def link_subs(r, count, delay):
     linked_count = 0;
@@ -141,7 +165,7 @@ def link_submission(r, submission):
 
     if check_commmented(linkedp):
         linked.append(lid);
-        linkedsrc.append(lid);
+        linkedsrc.append(sid);
         return False;
 
     if isinstance(linkedp, praw.objects.Comment):
@@ -162,7 +186,7 @@ def link_submission(r, submission):
 def edit_post(totessubmission, original):
     if totessubmission is None:
         return False;
-    text = re.sub("\[\]\(#footer\).{1,}", "", totessubmission.body);
+    text = re.sub("\[\]\(#footer\).{1,}", "", totessubmission.body); # sub. invisible link for easier footer changes
     text = re.sub("\*\^If.{1,}", "", text);
     text = re.sub("\^Please.{1,}", "", text); # substitute old footer as well
     text = re.sub("Do not vote.{1,}", "", text); # substitute original footer as well
@@ -195,18 +219,6 @@ def check_commmented(c):
         if co.author.name.lower() == user.lower():
             return True;
     return False;
-
-
-#def check_commented(s):
-#    flat_comments = praw.helpers.flatten_tree(s.comments);
-#    for c in flat_comments:
-#        if c.author is None:
-#            continue;
-#        if c.author.name == user:
-#            return True;
-#        if c.author.name == "totes_meta_bot":
-#            return True;
-#    return False;
 
 
 def get_bot_comment(s):
@@ -312,6 +324,21 @@ def is_comment(link):
     return a.match(link);
 
 
+def load_list(file):
+    f = open(file, "r");
+    data = f.read();
+    f.close();
+    return data.split();
+
+def save_list(file, list):
+    f = open(file, "wb");
+    str = "";
+    for s in list:
+        str = str + s + " ";
+    f.write(str);
+    f.close();
+
+
 def log_crash():
     logging.error("Error occurred in the bot; restarting in 15 seconds...");
     logging.error("Details: ");
@@ -336,8 +363,6 @@ def setup_logging():
 
 try:
     setup_logging();
-    logging.info("40 minute sleep timer starting...");
-    time.sleep(40*60);
     main();
 except (AttributeError, NameError, SyntaxError, TypeError) as e:
     logging.error(exi());
