@@ -31,12 +31,13 @@ banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", 
           "suits", "japanlife", "photography", "hiphopheads", "apple", "lifeprotips", "nba"];
 
 blockedusers = ["amprobablypooping", "evilrising", "frontpagewatch", "frontpagewatchmirror", "moon-done", "politicbot",
-                "rising_threads_bot", "removal_rover", "drugtaker", "know_your_shit"];
+                "rising_threads_bot", "removal_rover", "know_your_shit", "drugtaker", "nedsc"];
 
 # metabots = [user, "totesmessenger", "totes_meta_bot", "meta_bot", "meta_bot2", "originallinkbot"];
 
 # Ban list:
 # drugtaker - Meta bot NSFW marking evasion
+# NedSc     - By request
 
 nsfwreddits = ["srsshillwatch", "srsshillswatch", "srshillswatch", "srshillwatch", "gonewild"];
 
@@ -148,7 +149,7 @@ def link_submission(r, submission):
         skipped.append(lid);
         return False;
 
-    if submission.subreddit.display_name.lower() in srcblacklist or submission.author.name is None:
+    if submission.subreddit.display_name.lower() in srcblacklist or submission.author is None:
         skippedsrc.append(sid);
         return False;
 
@@ -162,17 +163,12 @@ def link_submission(r, submission):
         return False;
 
 
-    if lid in linked or check_commmented(linkedp):
+    if lid in linked or check_commmented(linkedp) or get_bot_comment(linkedp) is not None:
         success = edit_post(get_bot_comment(linkedp), submission);
-        if success:
-            linkedsrc.append(sid);
-        linked.append(lid);
-        return success;
-
-    if check_commmented(linkedp):
-        linked.append(lid);
         linkedsrc.append(sid);
-        return False;
+        if not lid in linked:
+            linked.append(lid);
+        return success;
 
     if isinstance(linkedp, praw.objects.Comment):
         linked.append(lid);
@@ -369,6 +365,7 @@ def setup_logging():
 
 try:
     setup_logging();
+    time.sleep(15*60); # sleep for 15 minutes because I don't trust my bot
     main();
 except (AttributeError, NameError, SyntaxError, TypeError) as e:
     logging.error(exi());
