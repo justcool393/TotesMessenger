@@ -92,11 +92,10 @@ def main():
 
 def add_linkedsrc(r):
     for c in r.get_redditor(user).get_comments(sort='new'):
-        parent = parent_obj(c);
-        if parent is None:
+        pid = c.parent_id;
+        if pid is None:
             continue;
-        linkedsrc.append(parent.id);
-        pass;
+        linkedsrc.append(pid);
 
 def parent_obj(obj):
     assert type(obj) == praw.objects.Comment;
@@ -383,7 +382,7 @@ def setup_logging():
 try:
     setup_logging();
     main();
-except (AttributeError, NameError, SyntaxError, TypeError) as e:
+except (AttributeError, NameError, SyntaxError, TypeError, UnboundLocalError) as e:
     logging.error(exi());
     time.sleep(86400);  # Sleep for 1 day so we don't restart.
 except Exception:
