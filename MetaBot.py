@@ -28,7 +28,7 @@ srcblacklist = ["depression", "lifeafternarcissists", "managedbynarcissists", "m
 banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", "femradebates", "pcmasterrace",
           "purplepilldebate", "slrep", "funny", "theredpill", "personalfinance", "india", "lifehacks", "kotakuinaction",
           "askmen", "smashbros", "android", "neutralpolitics", "dota2", "wet_shavers", "dogecoin", "askphilosophy",
-          "suits", "japanlife", "photography", "hiphopheads", "apple", "lifeprotips", "nba"];
+          "suits", "japanlife", "photography", "hiphopheads", "apple", "lifeprotips", "nba", "dbz"];
 
 blockedusers = ["amprobablypooping", "evilrising", "frontpagewatch", "frontpagewatchmirror", "moon-done", "politicbot",
                 "rising_threads_bot", "removal_rover", "know_your_shit", "drugtaker", "nedsc"];
@@ -61,7 +61,7 @@ def main():
     r.login(user, os.environ['REDDIT_PASS']);
     logging.info("Logged in to reddit...");
 
-    add_linkedp(r);
+    add_linked(r);
     logging.info("Total linked posts: " + str(len(linkedsrc)));
 
     check_at = 3600;
@@ -90,12 +90,12 @@ def main():
                 times_zero = 1;
         count += link_subs(r, 25, 60);
 
-def add_linkedp(r):
-    for c in r.get_redditor(user).get_comments(sort='new'):
+def add_linked(r):
+    for c in r.get_me().get_comments(sort='new'):
         pid = c.parent_id;
         if pid is None:
             continue;
-        linkedp.append(pid);
+        linked.append(pid);
 
 def create_files():
     f = open("linked.lst", "a");
@@ -111,8 +111,8 @@ def link_subs(r, count, delay):
     linked_count = 0;
     for submission in r.get_domain_listing('reddit.com', sort='new', limit=count):
 
-        #if submission.subreddit.display_name.lower() not in test_reddits:  # For testing things
-        #    continue;
+        if submission.subreddit.display_name.lower() not in test_reddits:  # For testing things
+            continue;
 
         try:
             if link_submission(r, submission):
@@ -141,7 +141,7 @@ def link_submission(r, submission):
         logging.error(exi());
 
     if linkedp is None:
-        return;
+        return False;
 
     lid = linkedp.id;
     sid = submission.id;
@@ -149,13 +149,13 @@ def link_submission(r, submission):
     # Skip conditions: Already deleted, undelete/scraper/mod log bots, blacklisted, banned/archived,
     # archived, in source blacklist
 
-    if linkedp is None or linkedp.subreddit is None:
+    if linkedp is None or linkedp.subreddit is None or linkedp.author is None:
         skipped.append(lid);
         return False;
 
     srlower = linkedp.subreddit.display_name.lower();
 
-    if linkedp.author is None or srlower in blacklist or srlower in banned or linkedp.created < (time.time() - ARCHIVE_TIME):
+    if srlower in blacklist or srlower in banned or linkedp.created < (time.time() - ARCHIVE_TIME):
         skipped.append(lid);
         return False;
 
@@ -165,6 +165,7 @@ def link_submission(r, submission):
 
     if submission.author.name.lower() in blockedusers:
         skippedsrc.append(sid);
+        return False;
 
     if lid in skipped or sid in skippedsrc:
         return False;
@@ -180,14 +181,14 @@ def link_submission(r, submission):
             linked.append(lid);
         return success;
 
+    cj = srlower == "circlejerk"; #check if our subreddit is /r/circlejerk so we can user our specialized msg for it
+
     if isinstance(linkedp, praw.objects.Comment):
-        linked.append(lid);
-        linkedsrc.append(sid);
-        comment(linkedp, submission, srlower == "circlejerk");
+        comment(linkedp, submission, cj);
     elif isinstance(linkedp, praw.objects.Submission):
-        post(linkedp, submission, srlower == "circlejerk");
+        post(linkedp, submission, cj);
     else:
-        logging.error("Not a Comment or Submission! (ID: " + id + ")");
+        logging.error("Not a Comment or Submission! (ID: " + lid + ")");
         return False;
 
     linked.append(lid);
