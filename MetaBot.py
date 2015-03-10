@@ -57,6 +57,8 @@ def main():
     skipped = load_list("skipped.lst");
     skippedsrc = load_list("skippedsrc.lst");
 
+    add_linkedsrc();
+
     r = praw.Reddit("Links to reddit posts from other places in reddit", domain="api.reddit.com", log_requests=0);
     r.login(user, os.environ['REDDIT_PASS']);
     logging.info("Logged in to reddit...");
@@ -86,6 +88,20 @@ def main():
                 count = 0;
                 times_zero = 1;
         count += link_subs(r, 25, 60);
+
+def add_linkedsrc():
+    for c in r.get_redditor(user).get_comments(sort='new'):
+        parent = parent_obj(c);
+        if parent is None:
+            return;
+        linkedsrc.append(parent.id);
+        pass;
+
+def parent_obj(obj):
+    assert type(obj) == praw.objects.Comment;
+    if obj.is_root:
+        return obj.submission;
+    return self.rh.get_info(thing_id=obj.parent_id);
 
 def create_files():
     f = open("linked.lst", "a");
