@@ -93,7 +93,7 @@ def add_linkedsrc():
     for c in r.get_redditor(user).get_comments(sort='new'):
         parent = parent_obj(c);
         if parent is None:
-            return;
+            continue;
         linkedsrc.append(parent.id);
         pass;
 
