@@ -23,7 +23,7 @@ srcblacklist = ["depression", "lifeafternarcissists", "managedbynarcissists", "m
                 "rbnathome", "rbnbookclub", "rbnchildcare", "rbnfavors", "rbngames", "rbnlifeskills", "rbnmovienight",
                 "rbnrelationships", "rbnspouses", "suicidewatch", "switcharoo", "switcheroo", "trolledbynarcissists",
                 "unremovable", "politic", "mlplite", "risingthreads", "uncensorship", "leagueofriot", "benlargefanclub",
-                "fitnesscirclejerk", "taiwancirclejerk"];
+                "fitnesscirclejerk", "taiwancirclejerk", "requestedtweaks"];
 
 banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", "femradebates", "pcmasterrace",
           "purplepilldebate", "slrep", "funny", "theredpill", "personalfinance", "india", "lifehacks", "kotakuinaction",
@@ -57,12 +57,12 @@ def main():
     skipped = load_list("skipped.lst");
     skippedsrc = load_list("skippedsrc.lst");
 
-    add_linkedsrc(r);
-    logging.info("Total linked posts: " + len(linkedsrc));
-
     r = praw.Reddit("Links to reddit posts from other places in reddit", domain="api.reddit.com", log_requests=0);
     r.login(user, os.environ['REDDIT_PASS']);
     logging.info("Logged in to reddit...");
+
+    add_linkedsrc(r);
+    logging.info("Total linked posts: " + len(linkedsrc));
 
     check_at = 3600;
     save_at = 60;
