@@ -58,6 +58,7 @@ def main():
     skippedsrc = load_list("skippedsrc.lst");
 
     add_linkedsrc();
+    logging.info("Total linked posts: " + len(linkedsrc));
 
     r = praw.Reddit("Links to reddit posts from other places in reddit", domain="api.reddit.com", log_requests=0);
     r.login(user, os.environ['REDDIT_PASS']);
