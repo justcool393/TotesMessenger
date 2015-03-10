@@ -61,7 +61,7 @@ def main():
     r.login(user, os.environ['REDDIT_PASS']);
     logging.info("Logged in to reddit...");
 
-    add_linkedsrc(r);
+    add_linkedp(r);
     logging.info("Total linked posts: " + str(len(linkedsrc)));
 
     check_at = 3600;
@@ -90,18 +90,12 @@ def main():
                 times_zero = 1;
         count += link_subs(r, 25, 60);
 
-def add_linkedsrc(r):
+def add_linkedp(r):
     for c in r.get_redditor(user).get_comments(sort='new'):
         pid = c.parent_id;
         if pid is None:
             continue;
-        linkedsrc.append(pid);
-
-def parent_obj(obj):
-    assert type(obj) == praw.objects.Comment;
-    if obj.is_root:
-        return obj.submission;
-    return self.rh.get_info(thing_id=obj.parent_id);
+        linkedp.append(pid);
 
 def create_files():
     f = open("linked.lst", "a");
@@ -138,7 +132,7 @@ def link_submission(r, submission):
     linkedp = None;
     try:
         linkedp = get_object(r, url);
-    except praw.errors.ClientException as e:
+    except praw.errors.ClientException:
         logging.error("Link is not a reddit post (id: " + submission.id + ")");
         logging.error(exi());
         return;
@@ -290,7 +284,7 @@ def comment(c, original, isrcirclejerk):
         logging.debug("Can't comment (comment karma is too low)");
     except praw.errors.APIException as e:
         logging.warning(str(e));
-    except Exception:
+    except Exception as e:
         logging.error("Error adding comment (CID: " + str(c.id) + ")");
         logging.error(str(e));
 
