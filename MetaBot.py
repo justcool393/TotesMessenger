@@ -5,6 +5,7 @@ linkedsrc = [];
 skipped = [];
 skippedsrc = [];
 
+TESTING = True;
 ARCHIVE_TIME = 15778463; # currently 6 months (in seconds)
 CJ_HEADER = u"""This dank meme has been linked to from another place on le reddit.""";
 HEADER = u"""This thread has been linked to from another place on reddit.""";
@@ -91,7 +92,7 @@ def main():
         count += link_subs(r, 25, 60);
 
 def add_linked(r):
-    for c in r.get_me().get_comments(sort='new'):
+    for c in r.user.get_comments(sort='new'):
         pid = c.parent_id;
         if pid is None:
             continue;
@@ -111,7 +112,7 @@ def link_subs(r, count, delay):
     linked_count = 0;
     for submission in r.get_domain_listing('reddit.com', sort='new', limit=count):
 
-        if submission.subreddit.display_name.lower() not in test_reddits:  # For testing things
+        if TESTING and submission.subreddit.display_name.lower() not in test_reddits:
             continue;
 
         try:
