@@ -5,7 +5,7 @@ linkedsrc = [];
 skipped = [];
 skippedsrc = [];
 
-TESTING = True;
+TESTING = False;
 ARCHIVE_TIME = 15778463; # currently 6 months (in seconds)
 CJ_HEADER = u"""This dank meme has been linked to from another place on le reddit.""";
 HEADER = u"""This thread has been linked to from another place on reddit.""";
@@ -63,7 +63,7 @@ def main():
     logging.info("Logged in to reddit...");
 
     add_linked(r);
-    logging.info("Total linked posts: " + str(len(linkedsrc)));
+    logging.info("Total linked posts so far: " + str(len(linked)));
 
     check_at = 3600;
     save_at = 60;
