@@ -62,7 +62,7 @@ def main():
     logging.info("Logged in to reddit...");
 
     add_linkedsrc(r);
-    logging.info("Total linked posts: " + len(linkedsrc));
+    logging.info("Total linked posts: " + str(len(linkedsrc)));
 
     check_at = 3600;
     save_at = 60;
