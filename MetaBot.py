@@ -57,7 +57,7 @@ def main():
     skipped = load_list("skipped.lst");
     skippedsrc = load_list("skippedsrc.lst");
 
-    add_linkedsrc();
+    add_linkedsrc(r);
     logging.info("Total linked posts: " + len(linkedsrc));
 
     r = praw.Reddit("Links to reddit posts from other places in reddit", domain="api.reddit.com", log_requests=0);
@@ -90,7 +90,7 @@ def main():
                 times_zero = 1;
         count += link_subs(r, 25, 60);
 
-def add_linkedsrc():
+def add_linkedsrc(r):
     for c in r.get_redditor(user).get_comments(sort='new'):
         parent = parent_obj(c);
         if parent is None:
