@@ -382,7 +382,6 @@ def setup_logging():
 
 try:
     setup_logging();
-    time.sleep(15*60); # sleep for 15 minutes because I don't trust my bot
     main();
 except (AttributeError, NameError, SyntaxError, TypeError) as e:
     logging.error(exi());
