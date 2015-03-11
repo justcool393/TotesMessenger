@@ -24,7 +24,7 @@ srcblacklist = ["depression", "lifeafternarcissists", "managedbynarcissists", "m
                 "rbnathome", "rbnbookclub", "rbnchildcare", "rbnfavors", "rbngames", "rbnlifeskills", "rbnmovienight",
                 "rbnrelationships", "rbnspouses", "suicidewatch", "switcharoo", "switcheroo", "trolledbynarcissists",
                 "unremovable", "politic", "mlplite", "risingthreads", "uncensorship", "leagueofriot", "benlargefanclub",
-                "fitnesscirclejerk", "taiwancirclejerk", "requestedtweaks"];
+                "fitnesscirclejerk", "taiwancirclejerk", "requestedtweaks", "jaxbrew", "floridabrew"];
 
 banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", "femradebates", "pcmasterrace",
           "purplepilldebate", "slrep", "funny", "theredpill", "personalfinance", "india", "lifehacks", "kotakuinaction",
@@ -64,9 +64,7 @@ def main():
     logging.info("Logged in to reddit...");
 
     add_linked(r);
-    add_linkedsrc(r);
-    logging.info("Linked posts at startup: " + str(len(linked)));
-    logging.info("Source posts at startup: " + str(len(linkedsrc)));
+    logging.info("Linked: " + str(len(linked)), ", source: " + str(len(linkedsrc)));
 
     check_at = 3600;
     save_at = 60;
@@ -101,10 +99,7 @@ def add_linked(r):
             continue;
         if pid not in linked:
             linked.append(pid);
-
-
-def add_linkedsrc(r):
-    for c in r.user.get_comments(sort='new', limit=None):
+        # Add linkedsrc one in to one method.
         posts = re.findall("http://np.reddit.com/r/.{1,20}/comments/.{1,8}/", c.body);
         for p in posts:
             linkedsrc.append(re.sub("http://np.reddit.com/r/.{1,20}/comments/", "", p)[:-1]);
@@ -130,8 +125,9 @@ def link_subs(r, count, delay):
             if link_submission(r, submission):
                 linked_count += 1;
                 time.sleep(3);
-        except urllib2.HTTPError as e:
+        except (urllib2.ConnectionError, urllib2.HTTPError) as e:
             logging.error(str(e));
+            time.sleep(5);
 
     time.sleep(delay);
     return linked_count;
