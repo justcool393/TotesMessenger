@@ -29,7 +29,8 @@ srcblacklist = ["depression", "lifeafternarcissists", "managedbynarcissists", "m
 banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", "femradebates", "pcmasterrace",
           "purplepilldebate", "slrep", "funny", "theredpill", "personalfinance", "india", "lifehacks", "kotakuinaction",
           "askmen", "smashbros", "android", "neutralpolitics", "dota2", "wet_shavers", "dogecoin", "askphilosophy",
-          "suits", "japanlife", "photography", "hiphopheads", "apple", "lifeprotips", "nba", "dbz"];
+          "suits", "japanlife", "photography", "hiphopheads", "apple", "lifeprotips", "nba", "dbz", "gender_critical",
+          "movies"];
 
 blockedusers = ["amprobablypooping", "evilrising", "frontpagewatch", "frontpagewatchmirror", "moon-done", "politicbot",
                 "rising_threads_bot", "removal_rover", "know_your_shit", "drugtaker", "nedsc"];
@@ -63,7 +64,9 @@ def main():
     logging.info("Logged in to reddit...");
 
     add_linked(r);
-    logging.info("Total linked posts so far: " + str(len(linked)));
+    add_linkedsrc(r);
+    logging.info("Linked posts at startup: " + str(len(linked)));
+    logging.info("Source posts at startup: " + str(len(linkedsrc)));
 
     check_at = 3600;
     save_at = 60;
@@ -92,11 +95,19 @@ def main():
         count += link_subs(r, 25, 60);
 
 def add_linked(r):
-    for c in r.user.get_comments(sort='new'):
+    for c in r.user.get_comments(sort='new', limit=None):
         pid = c.parent_id;
         if pid is None:
             continue;
-        linked.append(pid);
+        if pid not in linked:
+            linked.append(pid);
+
+
+def add_linkedsrc(r):
+    for c in r.user.get_comments(sort='new', limit=None):
+        posts = re.findall("http://np.reddit.com/r/.{1,20}/comments/.{1,8}/", c.body);
+        for p in posts:
+            linkedsrc.append(re.sub("http://np.reddit.com/r/.{1,20}/comments/", "", p)[:-1]);
 
 def create_files():
     f = open("linked.lst", "a");
@@ -118,16 +129,16 @@ def link_subs(r, count, delay):
         try:
             if link_submission(r, submission):
                 linked_count += 1;
-        except Exception:
-            logging.error(exi());
-        time.sleep(3);
+                time.sleep(3);
+        except urllib2.HTTPError as e:
+            logging.error(str(e));
 
     time.sleep(delay);
     return linked_count;
 
 
 def link_submission(r, submission):
-    url = submission.url;
+    url = re.sub("(\#|\?).{1,}", "", submission.url);
     if not is_comment(url):
         return;
     linkedp = None;
@@ -160,6 +171,10 @@ def link_submission(r, submission):
         skipped.append(lid);
         return False;
 
+    if linkedp.subreddit.user_is_banned:
+        skipped.append(lid);
+        return False;
+
     if submission.subreddit.display_name.lower() in srcblacklist or submission.author is None:
         skippedsrc.append(sid);
         return False;
@@ -178,7 +193,7 @@ def link_submission(r, submission):
     if lid in linked or check_commmented(linkedp) or get_bot_comment(linkedp) is not None:
         success = edit_post(get_bot_comment(linkedp), submission);
         linkedsrc.append(sid);
-        if not lid in linked:
+        if lid not in linked:
             linked.append(lid);
         return success;
 
@@ -300,7 +315,7 @@ def format_link(post):
     return text + u"[" + post.title + "](" + np(post.permalink) + ")\n";
 
 def changesubdomain(link, sub):
-    l = re.sub(r"http[s]?://[a-z]{0,3}\.?reddit\.com", "", link);
+    l = re.sub(r"http[s]?://[a-z]{0,3}\.[a-z]{0,2}[.]?reddit\.com", "", link);
     return "http://" + sub + ".reddit.com" + l;
 
 def unnp(link):
@@ -326,7 +341,7 @@ def get_object(r, url):
         url = unnp(url);
         o = r.get_info(thing_id=get_cid(url));
         if o is None:
-            raise Exception("Comment is none! (URL: " + url + ")");
+            logging.error("Not a comment! (URL: " + url + ")");
 
         return o;
     else:
