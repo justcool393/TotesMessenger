@@ -7,6 +7,7 @@ skippedsrc = [];
 
 TESTING = False;
 ARCHIVE_TIME = 15778463; # currently 6 months (in seconds)
+CRASH_TIMER = 60;
 CJ_HEADER = u"""This dank meme has been linked to from another place on le reddit.""";
 HEADER = u"""This thread has been linked to from another place on reddit.""";
 FOOTER = u"""[](#footer)*^If ^you ^follow ^any ^of ^the ^above ^links, ^respect ^the ^rules ^of ^reddit ^and ^don't ^vote. ^\([Info](/r/TotesMessenger/wiki/) ^/ ^[Contact](/message/compose/?to=\/r\/TotesMessenger))* [](#bot)""";
@@ -64,7 +65,7 @@ def main():
     logging.info("Logged in to reddit...");
 
     add_linked(r);
-    logging.info("Linked: " + str(len(linked)), ", source: " + str(len(linkedsrc)));
+    logging.info("Linked: " + str(len(linked)) + ", source: " + str(len(linkedsrc)));
 
     check_at = 3600;
     save_at = 60;
@@ -365,10 +366,10 @@ def save_list(file, list):
 
 
 def log_crash():
-    logging.error("Error occurred in the bot; restarting in 15 seconds...");
     logging.error("Details: ");
     logging.error(exi());
-    time.sleep(15);
+    logging.error("Unhandled exception. Restarting in " + str(CRASH_TIMER) + " seconds...");
+    time.sleep(CRASH_TIMER);
     sys.exit(1);
 
 
@@ -384,7 +385,6 @@ def setup_logging():
     ch.setLevel(logging.INFO);
 
     root.addHandler(ch);
-
 
 try:
     setup_logging();
