@@ -324,7 +324,7 @@ def np(link):
 
 
 def get_cid(url):
-    l = re.sub(r"http[s]?://[a-z]{0,3}\.?reddit\.com/r/.{1,20}/comments/.{6,8}/.*/", "", url);
+    l = re.sub(r"http[s]?://[a-z]{0,3}\.?reddit\.com[/]/r/.{1,20}/comments/.{6,8}/.*/", "", url);
     l = re.sub(r"\?.*", "", l);
     l = re.sub(r"\..*", "", l);
     return "t1_" + l;
@@ -332,7 +332,7 @@ def get_cid(url):
 
 def get_object(r, url):
     obj = praw.objects.Submission.from_url(r, unnp(url));
-    a = re.compile("http[s]?://[a-z]{0,3}\.?reddit\.com/r/.{1,20}/comments/.{6,8}/.*/.{6,8}");
+    a = re.compile("http[s]?://[a-z]{0,3}\.?reddit\.com[/]/r/.{1,20}/comments/.{6,8}/.*/.{6,8}");
 
     if a.match(url):
         url = unnp(url);
@@ -346,7 +346,7 @@ def get_object(r, url):
 
 
 def is_comment(link):
-    a = re.compile("http[s]?://[a-z]{0,3}\.?reddit\.com/r/.{1,20}/comments/.*");
+    a = re.compile("http[s]?://[a-z]{0,3}\.?reddit\.com[/]/r/.{1,20}/comments/.*");
     return a.match(link);
 
 
