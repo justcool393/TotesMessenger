@@ -137,14 +137,18 @@ def link_subs(r, count, delay):
 def link_submission(r, submission):
     url = re.sub("(\#|\?).{1,}", "", submission.url);
     if not is_comment(url):
-        return;
+        return False;
     linkedp = None;
     try:
         linkedp = get_object(r, url);
     except praw.errors.ClientException:
         logging.error("Link is not a reddit post (id: " + submission.id + ")");
         logging.error(exi());
-        return;
+        return False;
+    except (urllib2.ConnectionError, urllib2.HTTPError) as e:
+        logging.error(str(e));
+        time.sleep(5);
+        return False;
     except Exception:
         logging.error("Could not get comment!");
         logging.error(exi());
@@ -194,7 +198,7 @@ def link_submission(r, submission):
             linked.append(lid);
         return success;
 
-    cj = srlower == "circlejerk"; #check if our subreddit is /r/circlejerk so we can user our specialized msg for it
+    cj = srlower == "circlejerk"; # check if our subreddit is /r/circlejerk so we can user our specialized msg for it
 
     if isinstance(linkedp, praw.objects.Comment):
         comment(linkedp, submission, cj);
@@ -312,7 +316,7 @@ def format_link(post):
     return text + u"[" + post.title + "](" + np(post.permalink) + ")\n";
 
 def changesubdomain(link, sub):
-    l = re.sub(r"http[s]?://[a-z]{0,3}\.[a-z]{0,2}[.]?reddit\.com", "", link);
+    l = re.sub(r"http[s]?://[a-z]{0,3}\.[.]?reddit\.com", "", link);
     return "http://" + sub + ".reddit.com" + l;
 
 def unnp(link):
@@ -331,11 +335,11 @@ def get_cid(url):
 
 
 def get_object(r, url):
-    obj = praw.objects.Submission.from_url(r, unnp(url));
+    url = unnp(url);
+    obj = praw.objects.Submission.from_url(r, url);
     a = re.compile("http[s]?://[a-z]{0,3}\.?reddit\.com/r/.{1,20}/comments/.{6,8}/.*/.{6,8}");
 
     if a.match(url):
-        url = unnp(url);
         o = r.get_info(thing_id=get_cid(url));
         if o is None:
             logging.error("Not a comment! (URL: " + url + ")");
