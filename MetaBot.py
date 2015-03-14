@@ -25,7 +25,7 @@ srcblacklist = ["depression", "lifeafternarcissists", "managedbynarcissists", "m
                 "rbnathome", "rbnbookclub", "rbnchildcare", "rbnfavors", "rbngames", "rbnlifeskills", "rbnmovienight",
                 "rbnrelationships", "rbnspouses", "suicidewatch", "switcharoo", "switcheroo", "trolledbynarcissists",
                 "unremovable", "politic", "mlplite", "risingthreads", "uncensorship", "leagueofriot", "benlargefanclub",
-                "fitnesscirclejerk", "taiwancirclejerk", "requestedtweaks", "jaxbrew", "floridabrew"];
+                "fitnesscirclejerk", "taiwancirclejerk", "requestedtweaks", "jaxbrew", "floridabrew", "aggregat0r"];
 
 banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", "femradebates", "pcmasterrace",
           "purplepilldebate", "slrep", "funny", "theredpill", "personalfinance", "india", "lifehacks", "kotakuinaction",
@@ -126,7 +126,7 @@ def link_subs(r, count, delay):
             if link_submission(r, submission):
                 linked_count += 1;
                 time.sleep(3);
-        except (urllib2.ConnectionError, urllib2.HTTPError) as e:
+        except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError) as e:
             logging.error(str(e));
             time.sleep(5);
 
@@ -145,7 +145,7 @@ def link_submission(r, submission):
         logging.error("Link is not a reddit post (id: " + submission.id + ")");
         logging.error(exi());
         return False;
-    except (urllib2.ConnectionError, urllib2.HTTPError) as e:
+    except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError) as e:
         logging.error(str(e));
         time.sleep(5);
         return False;
@@ -162,7 +162,7 @@ def link_submission(r, submission):
     # Skip conditions: Already deleted, undelete/scraper/mod log bots, blacklisted, banned/archived,
     # archived, in source blacklist
 
-    if linkedp is None or linkedp.subreddit is None or linkedp.author is None:
+    if linkedp.subreddit is None or linkedp.author is None:
         skipped.append(lid);
         return False;
 
@@ -316,7 +316,7 @@ def format_link(post):
     return text + u"[" + post.title + "](" + np(post.permalink) + ")\n";
 
 def changesubdomain(link, sub):
-    l = re.sub(r"http[s]?://[a-z]{0,3}\.[.]?reddit\.com", "", link);
+    l = re.sub(r"http[s]?://[a-z]{0,3}\.?[a-z]{0,2}\.?reddit\.com", "", link);
     return "http://" + sub + ".reddit.com" + l;
 
 def unnp(link):
@@ -350,7 +350,7 @@ def get_object(r, url):
 
 
 def is_comment(link):
-    a = re.compile("http[s]?://[a-z]{0,3}\.?reddit\.com/r/.{1,20}/comments/.*");
+    a = re.compile("http[s]?://[a-z]{0,3}\.?[a-z]{0,2}\.?reddit\.com/r/.{1,20}/comments/.*");
     return a.match(link);
 
 
@@ -394,6 +394,7 @@ try:
     setup_logging();
     main();
 except (AttributeError, NameError, SyntaxError, TypeError, UnboundLocalError) as e:
+    logging.error("Crash due to syntactical error!");
     logging.error(exi());
     time.sleep(86400);  # Sleep for 1 day so we don't restart.
 except Exception:
