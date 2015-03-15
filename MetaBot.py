@@ -1,4 +1,4 @@
-import logging, os, praw, re, time, traceback, sys, urllib2;
+import logging, os, praw, re, time, traceback, sys, urllib2, requests.exceptions;
 
 linked = [];
 linkedsrc = [];
@@ -126,7 +126,7 @@ def link_subs(r, count, delay):
             if link_submission(r, submission):
                 linked_count += 1;
                 time.sleep(3);
-        except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError) as e:
+        except (ConnectionError, HTTPError) as e:
             logging.error(str(e));
             time.sleep(5);
 
@@ -145,7 +145,7 @@ def link_submission(r, submission):
         logging.error("Link is not a reddit post (id: " + submission.id + ")");
         logging.error(exi());
         return False;
-    except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError) as e:
+    except (ConnectionError, HTTPError) as e:
         logging.error(str(e));
         time.sleep(5);
         return False;
