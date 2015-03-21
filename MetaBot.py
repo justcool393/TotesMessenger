@@ -126,8 +126,8 @@ def link_subs(r, count, delay):
             if link_submission(r, submission):
                 linked_count += 1;
                 time.sleep(3);
-        except (Exception) as e:
-            logging.error(str(e));
+        except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError) as ex:
+            logging.error(str(ex));
             time.sleep(5);
 
     time.sleep(delay);
@@ -145,10 +145,10 @@ def link_submission(r, submission):
         logging.error("Link is not a reddit post (id: " + submission.id + ")");
         logging.error(exi());
         return False;
-    #except (Exception) as e:
-    #    logging.error(str(e));
-    #    time.sleep(5);
-    #    return False;
+    except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError) as ex:
+        logging.error(str(ex));
+        time.sleep(5);
+        return False;
     except Exception:
         logging.error("Could not get comment!");
         logging.error(exi());
