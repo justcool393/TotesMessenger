@@ -4,6 +4,8 @@ linked = [];
 linkedsrc = [];
 skipped = [];
 skippedsrc = [];
+linkedcount = 0;
+errorcount = 0;
 
 TESTING = False;
 ARCHIVE_TIME = 15778463; # currently 6 months (in seconds)
@@ -26,7 +28,7 @@ srcblacklist = ["depression", "lifeafternarcissists", "managedbynarcissists", "m
                 "rbnrelationships", "rbnspouses", "suicidewatch", "switcharoo", "switcheroo", "trolledbynarcissists",
                 "unremovable", "politic", "mlplite", "risingthreads", "uncensorship", "leagueofriot", "benlargefanclub",
                 "fitnesscirclejerk", "taiwancirclejerk", "requestedtweaks", "jaxbrew", "floridabrew", "aggregat0r",
-                "gamecollectingjerk"];
+                "gamecollectingjerk", "technews2015"];
 
 banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", "femradebates", "pcmasterrace",
           "purplepilldebate", "slrep", "funny", "theredpill", "personalfinance", "india", "lifehacks", "kotakuinaction",
@@ -54,6 +56,9 @@ def main():
     global linkedsrc;
     global skipped;
     global skippedsrc;
+    global linkedcount;
+    global errorcount;
+
     create_files();
 
     linked = load_list("linked.lst");
@@ -69,30 +74,35 @@ def main():
     logging.info("Linked: " + str(len(linked)) + ", source: " + str(len(linkedsrc)));
 
     check_at = 3600;
-    save_at = 60;
+    # save_at = 60;
     last_logged = 0;
-    last_saved = 0;
+    # last_saved = 0;
     times_zero = 1;
 
-    count = link_subs(r, 100, 120); # Check the last 100 posts on startup
+    link_subs(r, 100, 120); # Check the last 100 posts on startup
     while True:
+        '''
         if time.time() >= (last_saved + save_at):
             last_saved = time.time();
             save_list("linked.lst", linked);
             save_list("linkedsrc.lst", linkedsrc);
             save_list("skipped.lst", skipped);
             save_list("skippedsrc.lst", skippedsrc);
+        ''' # Saving is disabled due to our host works.
 
         if time.time() >= (last_logged + check_at):
 
             last_logged = time.time();
-            if count == 0:
+            if linkedcount == 0:
                 times_zero += 1;
             else:
-                logging.info("Linked " + str(count) + " in the last " + str((check_at * times_zero) / 60 / 60) + " hour(s)");
-                count = 0;
+                logging.info("Last " + str((check_at * times_zero) / 60 / 60) + " hr(s): Linked " + str(linkedcount)
+                             + ", " + str(errorcount) + " failed.");
+                # logging.info("Linked " + str(count) + " in the last " + str((check_at * times_zero) / 60 / 60) + " hour(s)");
+                linkedcount = 0;
+                errorcount = 0;
                 times_zero = 1;
-        count += link_subs(r, 25, 60);
+        link_subs(r, 25, 60);
 
 def add_linked(r):
     for c in r.user.get_comments(sort='new', limit=None):
@@ -117,7 +127,8 @@ def create_files():
     f.close();
 
 def link_subs(r, count, delay):
-    linked_count = 0;
+    global linkedcount;
+    global errorcount;
     for submission in r.get_domain_listing('reddit.com', sort='new', limit=count):
 
         if TESTING and submission.subreddit.display_name.lower() not in test_reddits:
@@ -125,14 +136,16 @@ def link_subs(r, count, delay):
 
         try:
             if link_submission(r, submission):
-                linked_count += 1;
+                linkedcount += 1;
                 time.sleep(3);
+            else:
+                errorcount += 1;
         except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError) as ex:
             logging.error(str(ex));
-            time.sleep(5);
+            errorcount += 1;
+            time.sleep(10);
 
     time.sleep(delay);
-    return linked_count;
 
 
 def link_submission(r, submission):
