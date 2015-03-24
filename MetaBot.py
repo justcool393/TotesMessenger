@@ -1,4 +1,5 @@
 import logging, os, praw, re, time, traceback, sys, urllib2, requests.exceptions;
+import datetime, random; # for science. (apr 1st stuff)
 
 linked = [];
 linkedsrc = [];
@@ -10,9 +11,9 @@ errorcount = 0;
 TESTING = False;
 ARCHIVE_TIME = 15778463; # currently 6 months (in seconds)
 CRASH_TIMER = 60;
-CJ_HEADER = u"""This dank meme has been linked to from another place on le reddit.""";
-HEADER = u"""This thread has been linked to from another place on reddit.""";
-FOOTER = u"""[](#footer)*^If ^you ^follow ^any ^of ^the ^above ^links, ^respect ^the ^rules ^of ^reddit ^and ^don't ^vote. ^\([Info](/r/TotesMessenger/wiki/) ^/ ^[Contact](/message/compose/?to=\/r\/TotesMessenger))* [](#bot)""";
+CJ_HEADER = u"This dank meme has been linked to from another place on le reddit.";
+HEADER = u"This thread has been linked to from another place on reddit.";
+FOOTER = u"[](#footer)*^If ^you ^follow ^any ^of ^the ^above ^links, ^respect ^the ^rules ^of ^reddit ^and ^don't ^vote. ^\([Info](/r/TotesMessenger/wiki/) ^/ ^[Contact](/message/compose/?to=\/r\/TotesMessenger))* [](#bot)";
 
 user = os.environ['REDDIT_USER'];
 blacklist = ["anime", "asianamerican", "askhistorians", "askscience", "aww", "benfrick", "bmw", "chicagosuburbs",
@@ -28,7 +29,7 @@ srcblacklist = ["depression", "lifeafternarcissists", "managedbynarcissists", "m
                 "rbnrelationships", "rbnspouses", "suicidewatch", "switcharoo", "switcheroo", "trolledbynarcissists",
                 "unremovable", "politic", "mlplite", "risingthreads", "uncensorship", "leagueofriot", "benlargefanclub",
                 "fitnesscirclejerk", "taiwancirclejerk", "requestedtweaks", "jaxbrew", "floridabrew", "aggregat0r",
-                "gamecollectingjerk", "technews2015"];
+                "gamecollectingjerk", "technews2015", "runningcirclejerk"];
 
 banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", "femradebates", "pcmasterrace",
           "purplepilldebate", "slrep", "funny", "theredpill", "personalfinance", "india", "lifehacks", "kotakuinaction",
@@ -98,11 +99,11 @@ def main():
             else:
                 logging.info("Last " + str((check_at * times_zero) / 60 / 60) + " hr(s): Linked " + str(linkedcount)
                              + ", " + str(errorcount) + " failed.");
-                # logging.info("Linked " + str(count) + " in the last " + str((check_at * times_zero) / 60 / 60) + " hour(s)");
                 linkedcount = 0;
                 errorcount = 0;
                 times_zero = 1;
         link_subs(r, 25, 60);
+        # ex_post(r);  # ### Code for April Fool's Prank ### #
 
 def add_linked(r):
     for c in r.user.get_comments(sort='new', limit=None):
@@ -146,6 +147,7 @@ def link_subs(r, count, delay):
             time.sleep(10);
 
     time.sleep(delay);
+
 
 
 def link_submission(r, submission):
@@ -403,6 +405,128 @@ def setup_logging():
     ch.setLevel(logging.INFO);
 
     root.addHandler(ch);
+
+# #### METHODS USED IN APR 1ST STUFF STARTS HERE #### #
+
+
+def ex_post(r):
+    now = datetime.datetime.now();
+    if now.day != 1 and now.month != 4:
+        return;
+
+    if random.randint(0, 49) != 25:  # 1 in 50 chance.
+        return;
+
+    c = get_post(r);
+    replies = get_reply_count(c);
+
+    while c.id not in linkedp or replies < 3 or replies > 100: # 3 - 100 comment replies seems like a good number.
+        c = get_post(r);
+        replies = get_reply_count(c);
+
+    linkedpost = get_subreddit_and_post(c.subreddit.display_name.lower());
+    formattedpost = format_joke_post(linkedpost[0], linkedpost[1], c.subreddit.display_name.lower() == "circlejerk");
+    try:
+        c.reply(formattedpost);
+        logging.info("Added a joke comment successfully");
+    except praw.errors.RateLimitExceeded:
+        logging.debug("Can't comment (comment karma is too low)");
+    except praw.errors.APIException as e:
+        logging.warning(str(e));
+    except Exception as e:
+        logging.error("Error adding joke comment (CID: " + str(c.id) + ")");
+        logging.error(str(e));
+    linkedp.append(linkedpost);  # add our post to the linked post stuff so we don't post to the same comment.
+
+
+def get_post(r):
+    # Subreddits to post to!
+    subreddits = ["subredditdrama", "metasubredditdrama", "subredditdramadrama", "circlejerk", "buttcoin", "bestof",
+                  "gaming", "technology", "kotakuinaction", "gamerghazi", "againstgamergate", "bitcoin", "undelete",
+                  "mensrights", "againstmensrights", "amrsucks", "srssucks", "php"];
+    subreddit = r.get_subreddit(random.choice(subreddits));
+    return subreddit.get_comments()[0];
+
+def get_subreddit_and_post(tosubreddit):
+    subs = [];
+
+    srctitles = ["Let's fight the cancer with this post.", "Mods still won't remove this post even when proven wrong",
+                 "The cancer speaks!", "Ah, the tumor doesn't give up now?", "The cancer is giving up!",
+                 "And if you ask me how I'm feeling, this is why reddit sucks."];
+    conspiracytitles = ["In which we prove a govt. coverup is involved", "Reddit never says goodbye to shills",
+                        "Don't tell me you're too blind to see"];
+    bitcointitles = ["This is actually really good for the bitcoin market", "Could this be the game-changer?",
+                     "Merchant adoption, here we come!"];
+    srddtitles = ["I'm sure this thread will go well.", "We're no stranger to drama here"];
+    mrtitles = ["We're no strangers to this. What if the genders were reversed?",
+                "Gotta make you understand. This is not cool."];
+    msrdtitles = ["The mods are giving up on this subreddit", "SRD, we know the game and we're going to play it."];
+
+    kiatitles = ["And this is why ethics is important", "Never gonna say goodbye until this sub is fixed."];
+    ghazititles = ["Ah, another day, another Gator'rade", "You wouldn't get this from any other guy"];
+    lolphptitles = ["'Never gonna say goodbye to PHP'"];
+
+    subreddits = ["SubredditCancer", "conspiracy", "Bitcoin", "MensRights",
+                  "KotakuInAction", "GamerGhazi"];
+
+
+    if tosubreddit.lower() == "subredditdrama":  # add MSRD and SRDD if the subreddit is SubredditDrama
+        subreddits.extend(["MetaSubredditDrama", "SubredditDramaDrama"]);
+
+    if tosubreddit.lower() == "php":
+        subreddits.insert("lolphp");
+
+    for s in subreddits:
+        if s.lower() == tosubreddit.lower():
+            subreddits.remove(s);
+            break;
+
+    choice = random.choice(subreddits);
+    if choice == "KotakuInAction":
+        subs.insert(choice, random.choice(kiatitles));
+    elif choice == "SubredditCancer":
+        subs.insert(choice, random.choice(srctitles));
+    elif choice == "conspiracy":
+        subs.insert(choice, random.choice(conspiracytitles));
+    elif choice == "Bitcoin":
+        subs.insert(choice, random.choice(bitcointitles));
+    elif choice == "SubredditDramaDrama":
+        subs.insert(choice, random.choice(srddtitles));
+    elif choice == "MetaSubredditDrama":
+        subs.insert(choice, random.choice(msrdtitles));
+    elif choice == "MensRights":
+        subs.insert(choice, random.choice(mrtitles));
+    elif choice == "GamerGhazi":
+        subs.insert(choice, random.choice(ghazititles));
+    elif choice == "lolphp":
+        subs.insert(choice, random.choice(lolphptitles));
+
+    return subs;
+
+
+def get_reply_count(s):
+    if isinstance(s, praw.objects.Comment):
+        return len(s.replies);
+    else:
+        s.replace_more_comments(limit=None, threshold=0);
+        flat_comments = praw.helpers.flatten_tree(s.comments);
+        return len(flat_comments);
+    return -1;
+
+
+def format_joke_post(subreddit, title, isrcirclejerk):
+    if isrcirclejerk:
+        cmt = CJ_HEADER;
+    else:
+        cmt = HEADER;
+    cmt = cmt + u"""
+
+{link}
+
+""" + FOOTER;
+    return cmt.format(link=u"- [/r/" + subreddit + "] [" + title + "](http://bringvictory.com/)");
+
+# #### METHODS USED IN APR 1ST STUFF END HERE #### #
 
 try:
     setup_logging();
