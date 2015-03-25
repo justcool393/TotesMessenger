@@ -38,13 +38,14 @@ banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", 
           "movies"];
 
 blockedusers = ["amprobablypooping", "evilrising", "frontpagewatch", "frontpagewatchmirror", "moon-done", "politicbot",
-                "rising_threads_bot", "removal_rover", "know_your_shit", "drugtaker", "nedsc"];
+                "rising_threads_bot", "removal_rover", "know_your_shit", "drugtaker", "nedsc", "illusionbot"];
 
 # metabots = [user, "totesmessenger", "totes_meta_bot", "meta_bot", "meta_bot2", "originallinkbot"];
 
 # Ban list:
-# drugtaker - Meta bot NSFW marking evasion
-# NedSc     - By request
+# drugtaker   - Meta bot NSFW marking evasion
+# NedSc       - By request
+# IllusionBot - Bot (by request)
 
 nsfwreddits = ["srsshillwatch", "srsshillswatch", "srshillswatch", "srshillwatch", "gonewild"];
 
