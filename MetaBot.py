@@ -29,13 +29,13 @@ srcblacklist = ["depression", "lifeafternarcissists", "managedbynarcissists", "m
                 "rbnrelationships", "rbnspouses", "suicidewatch", "switcharoo", "switcheroo", "trolledbynarcissists",
                 "unremovable", "politic", "mlplite", "risingthreads", "uncensorship", "leagueofriot", "benlargefanclub",
                 "fitnesscirclejerk", "taiwancirclejerk", "requestedtweaks", "jaxbrew", "floridabrew", "aggregat0r",
-                "gamecollectingjerk", "technews2015", "runningcirclejerk", "nosillysuffix"];
+                "gamecollectingjerk", "technews2015", "runningcirclejerk", "nosillysuffix", "leoduhvinci"];
 
 banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", "femradebates", "pcmasterrace",
           "purplepilldebate", "slrep", "funny", "theredpill", "personalfinance", "india", "lifehacks", "kotakuinaction",
           "askmen", "smashbros", "android", "neutralpolitics", "dota2", "wet_shavers", "dogecoin", "askphilosophy",
           "suits", "japanlife", "photography", "hiphopheads", "apple", "lifeprotips", "nba", "dbz", "gender_critical",
-          "movies"];
+          "movies", "gendercritical"];
 
 blockedusers = ["amprobablypooping", "evilrising", "frontpagewatch", "frontpagewatchmirror", "moon-done", "politicbot",
                 "rising_threads_bot", "removal_rover", "know_your_shit", "drugtaker", "nedsc", "illusionbot"];
