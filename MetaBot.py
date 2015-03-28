@@ -426,8 +426,9 @@ def setup_logging():
 
 # #### METHODS USED IN APR 1ST STUFF STARTS HERE #### #
 
-TESTING_APR = True;
+TESTING_APR = False;
 MAX_TRIES = 10;
+MAX_POSTS = 20;
 
 def ex_post(r):
     now = datetime.datetime.now();
@@ -438,7 +439,6 @@ def ex_post(r):
         logging.info("4/1 prank - testing mode. Enter ex_post(r)...");
 
     if random.randint(0, 49) != 25 and not TESTING_APR:  # 1 in 50 chance.
-        logging.info("debug: returning");
         return;
 
     c = get_post(r);
@@ -446,7 +446,6 @@ def ex_post(r):
 
     count = 0;
     while (c.id in linked or replies < 3 or replies > 100) and not TESTING_APR: # 3 - 100 comment replies seems like a good number.
-        logging.info("debug: trying a post");
         if count > MAX_TRIES:
             logging.error("Couldn't find a good post; giving up.");
             return; # give up after a few amount of posts
@@ -454,7 +453,6 @@ def ex_post(r):
         replies = get_reply_count(c);
         count += 1;
 
-    logging.info("debug: Got a good post");
 
     linkedpost = get_subreddit_and_post(c.subreddit.display_name.lower());
     formattedpost = format_joke_post(linkedpost[0], linkedpost[1], c.subreddit.display_name.lower() == "circlejerk");
@@ -478,8 +476,12 @@ def get_post(r):
     if TESTING_APR:
         subreddits = ["TMTest", "justcool393"];
     subreddit = r.get_subreddit(random.choice(subreddits));
-    for c in subreddit.get_comments(limit=1):
-        return c;
+
+    choice = MAX_POSTS;
+    for c in subreddit.get_comments(limit=MAX_POSTS):
+        if random.randint(0, choice - 1) == 0:
+            return c;
+        choice -= 1;
 
 def get_subreddit_and_post(tosubreddit):
     subs = [];
