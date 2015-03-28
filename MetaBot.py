@@ -436,7 +436,7 @@ def ex_post(r):
     if TESTING_APR:
         logging.info("4/1 prank - testing mode. Enter ex_post(r)...");
 
-    if random.randint(0, 49) != 25 or TESTING_APR:  # 1 in 50 chance.
+    if random.randint(0, 49) != 25 or not TESTING_APR:  # 1 in 50 chance.
         return;
 
     c = get_post(r);
