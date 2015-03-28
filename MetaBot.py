@@ -76,33 +76,32 @@ def main():
     add_linked(r);
     logging.info("L: " + str(len(linked)) + ", LS: " + str(len(linkedsrc)) + ", S:" + str(len(skipped)) + ", SS: " + str(len(skippedsrc)));
 
-    check_at = 3600;
-    save_at = 1800;
-    last_logged = 0;
-    last_saved = 0;
+    check_at = 3600.0;
+    save_at = 600.0;
+    last_logged = 0.0;
+    last_saved = 0.0;
     times_zero = 1;
 
-    link_subs(r, 100, 10); # Check the last 100 posts on startup
+    link_subs(r, 100, 0); # Check the last 100 posts on startup
     while True:
 
-        if time.time() >= (last_saved + save_at):
+        if time.time() - last_saved >= save_at:
             logging.info("Saving list data, expect short delay...");
             last_saved = time.time();
             save_lists(["linked.lst", "linkedsrc.lst", "skipped.lst", "skippedsrc.lst"], [linked, linkedsrc, skipped, skippedsrc]);
 
-        if time.time() >= (last_logged + check_at):
-
+        if time.time() - last_logged >= check_at:
             last_logged = time.time();
             if linkedcount == 0:
                 times_zero += 1;
             else:
-                logging.info("Last " + str((check_at * times_zero) / 60 / 60) + " hr(s): Linked " + str(linkedcount)
+                logging.info("Last " + str((int(check_at) * times_zero) / 60 / 60) + " hr(s): Linked " + str(linkedcount)
                              + ", " + str(errorcount) + " failed.");
                 linkedcount = 0;
                 errorcount = 0;
                 times_zero = 1;
 
-        link_subs(r, 25, 25);
+        link_subs(r, 25, 30);
         ex_post(r);  # ### Code for April Fool's Prank ### #
 
 def add_linked(r):
@@ -119,12 +118,7 @@ def add_linked(r):
             if pid not in linkedsrc:
                 linkedsrc.append(pid);
 
-def create_files():
-    download_lists(["linked.lst", "linkedsrc.lst", "skipped.lst", "skippedsrc.lst"]);
-
 def link_subs(r, count, delay):
-    global linkedcount;
-    global errorcount;
     for submission in r.get_domain_listing('reddit.com', sort='new', limit=count):
 
         if TESTING and submission.subreddit.display_name.lower() not in test_reddits:
@@ -132,23 +126,23 @@ def link_subs(r, count, delay):
 
         try:
             if link_submission(r, submission):
-                linkedcount += 1;
-                time.sleep(3);
+                time.sleep(2);
         except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError) as ex:
-            logging.error(str(ex));
-            errorcount += 1;
-            time.sleep(10);
+            handle_http_error(ex);
 
     time.sleep(delay);
 
 
 
 def link_submission(r, submission):
+    global linkedcount;
     global errorcount;
     url = re.sub("(\#|\?).{1,}", "", submission.url);
     if not is_comment(url):
         return False;
+
     linkedp = None;
+
     try:
         linkedp = get_object(r, url);
     except praw.errors.ClientException:
@@ -156,14 +150,12 @@ def link_submission(r, submission):
         logging.error(exi());
         return False;
     except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError) as ex:
-        logging.error(str(ex));
-        if ex.response.status_code >= 500:
-            errorcount += 1;
-            time.sleep(5);
+        handle_http_error(ex);
         return False;
     except Exception:
         logging.error("Could not get comment!");
         logging.error(exi());
+        return False;
 
     if linkedp is None:
         return False;
@@ -210,6 +202,8 @@ def link_submission(r, submission):
             linkedsrc.append(sid);
             if lid not in linked:
                 linked.append(lid);
+        else:
+            errorcount += 1;
         return success;
 
     cj = srlower == "circlejerk"; # check if our subreddit is /r/circlejerk so we can user our specialized msg for it
@@ -220,13 +214,13 @@ def link_submission(r, submission):
         success = post(linkedp, submission, cj);
     else:
         logging.error("Not a Comment or Submission! (ID: " + lid + ")");
+        errorcount += 1;
         return False;
 
     if success:
         linked.append(lid);
         linkedsrc.append(sid);
-    else:
-        errorcount += 1;
+        linkedcount += 1;
     return success;
 
 
@@ -243,15 +237,6 @@ def edit_post(totessubmission, original):
 """ + FOOTER;
     totessubmission.edit(text);
     return True;
-
-
-def get_comment(r, s):
-    return get_linked(r, s).comments[0];
-
-
-def get_linked(r, link):
-    return r.get_submission(link);
-
 
 def check_commmented(c):
     if isinstance(c, praw.objects.Comment):
@@ -309,9 +294,7 @@ def post(s, original, isrcirclejerk):
     except praw.errors.APIException as e:
         logging.warning(str(e));
     except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError) as ex:
-        logging.error(str(ex));
-        if e.response.status_code >= 500:
-            time.sleep(5);
+        handle_http_error(ex);
     except Exception:
         logging.error("Error adding comment (SID: " + str(s.id) + ")");
         logging.error(exi());
@@ -324,14 +307,13 @@ def comment(c, original, isrcirclejerk):
         return True;
     except praw.errors.RateLimitExceeded:
         logging.debug("Can't comment (comment karma is too low)");
-    except praw.errors.APIException as e:
-        logging.warning(str(e));
+    except praw.errors.APIException as ex:
+        logging.warning(str(ex));
     except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError) as ex:
-        logging.error(str(ex));
-        time.sleep(5);
-    except Exception as e:
+        handle_http_error(ex);
+    except Exception as ex:
         logging.error("Error adding comment (CID: " + str(c.id) + ")");
-        logging.error(str(e));
+        logging.error(str(ex));
     return False;
 
 
@@ -376,10 +358,14 @@ def get_object(r, url):
     else:
         return obj;
 
-
 def is_comment(link):
     a = re.compile("http[s]?://[a-z]{0,3}\.?[a-z]{0,2}\.?reddit\.com/r/.{1,20}/comments/.*");
     return a.match(link);
+
+# Loading and saving to permanent storage #
+
+def create_files():
+    download_lists(["linked.lst", "linkedsrc.lst", "skipped.lst", "skippedsrc.lst"]);
 
 
 def load_list(file):
@@ -417,6 +403,16 @@ def download_lists(files):
         session.retrbinary("RETR " + file, open(file, 'wb').write);
     session.quit();
     logging.info("List downloading completed.");
+
+# End loading and saaving to permanent storage
+
+def handle_http_error(ex):
+    global errorcount;
+    errorcount += 1;
+    code = ex.response.status_code;
+    if 500 <= code < 600: # Sleep for 5 seconds on HTTP 5xx errors.
+        time.sleep(5);
+
 
 
 def log_crash():
