@@ -442,7 +442,7 @@ def ex_post(r):
     c = get_post(r);
     replies = get_reply_count(c);
 
-    while c.id not in linkedp or replies < 3 or replies > 100 or not TESTING_APR: # 3 - 100 comment replies seems like a good number.
+    while c.id not in linked or replies < 3 or replies > 100 or not TESTING_APR: # 3 - 100 comment replies seems like a good number.
         c = get_post(r);
         replies = get_reply_count(c);
 
@@ -458,7 +458,7 @@ def ex_post(r):
     except Exception as e:
         logging.error("Error adding joke comment (CID: " + str(c.id) + ")");
         logging.error(str(e));
-    linkedp.append(linkedpost);  # add our post to the linked post stuff so we don't post to the same comment.
+    linked.append(linkedpost);  # add our post to the linked post stuff so we don't post to the same comment.
 
 
 def get_post(r):
