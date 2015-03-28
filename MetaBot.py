@@ -438,17 +438,23 @@ def ex_post(r):
         logging.info("4/1 prank - testing mode. Enter ex_post(r)...");
 
     if random.randint(0, 49) != 25 and not TESTING_APR:  # 1 in 50 chance.
+        logging.info("debug: returning");
         return;
 
     c = get_post(r);
     replies = get_reply_count(c);
 
     count = 0;
-    while c.id in linked or replies < 3 or replies > 100 and not TESTING_APR: # 3 - 100 comment replies seems like a good number.
-        if count > MAX_TRIES: return; # give up after a few amount of posts
+    while (c.id in linked or replies < 3 or replies > 100) and not TESTING_APR: # 3 - 100 comment replies seems like a good number.
+        logging.info("debug: trying a post");
+        if count > MAX_TRIES:
+            logging.error("Couldn't find a good post; giving up.");
+            return; # give up after a few amount of posts
         c = get_post(r);
         replies = get_reply_count(c);
         count += 1;
+
+    logging.info("debug: Got a good post");
 
     linkedpost = get_subreddit_and_post(c.subreddit.display_name.lower());
     formattedpost = format_joke_post(linkedpost[0], linkedpost[1], c.subreddit.display_name.lower() == "circlejerk");
