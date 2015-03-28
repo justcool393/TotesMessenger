@@ -430,7 +430,7 @@ TESTING_APR = True;
 
 def ex_post(r):
     now = datetime.datetime.now();
-    if (now.day != 1 and now.month != 4) or not TESTING_APR:
+    if (now.day != 1 and now.month != 4) and not TESTING_APR:
         return;
 
     if TESTING_APR:
