@@ -155,7 +155,7 @@ def link_submission(r, submission):
         return False;
     except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError) as ex:
         logging.error(str(ex));
-        if e.response.status_code >= 500:
+        if ex.response.status_code >= 500:
             errorcount += 1;
             time.sleep(5);
         return False;
