@@ -8,6 +8,7 @@ skippedsrc = [];
 linkedcount = 0;
 errorcount = 0;
 
+
 TESTING = False;
 ARCHIVE_TIME = 15778463; # currently 6 months (in seconds)
 CRASH_TIMER = 60;
@@ -104,7 +105,7 @@ def main():
                 errorcount = 0;
                 times_zero = 1;
         link_subs(r, 25, 60);
-        # ex_post(r);  # ### Code for April Fool's Prank ### #
+        ex_post(r);  # ### Code for April Fool's Prank ### #
 
 def add_linked(r):
     for c in r.user.get_comments(sort='new', limit=None):
@@ -140,8 +141,6 @@ def link_subs(r, count, delay):
             if link_submission(r, submission):
                 linkedcount += 1;
                 time.sleep(3);
-            else:
-                errorcount += 1;
         except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError) as ex:
             logging.error(str(ex));
             errorcount += 1;
@@ -164,7 +163,8 @@ def link_submission(r, submission):
         return False;
     except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError) as ex:
         logging.error(str(ex));
-        time.sleep(5);
+        if e.response.status_code >= 500:
+            time.sleep(5);
         return False;
     except Exception:
         logging.error("Could not get comment!");
@@ -190,6 +190,7 @@ def link_submission(r, submission):
         return False;
 
     if linkedp.subreddit.user_is_banned:
+        banned.append(srlower);
         skipped.append(lid);
         return False;
 
@@ -210,24 +211,28 @@ def link_submission(r, submission):
 
     if lid in linked or check_commmented(linkedp) or get_bot_comment(linkedp) is not None:
         success = edit_post(get_bot_comment(linkedp), submission);
-        linkedsrc.append(sid);
-        if lid not in linked:
-            linked.append(lid);
+        if success:
+            linkedsrc.append(sid);
+            if lid not in linked:
+                linked.append(lid);
         return success;
 
     cj = srlower == "circlejerk"; # check if our subreddit is /r/circlejerk so we can user our specialized msg for it
 
     if isinstance(linkedp, praw.objects.Comment):
-        comment(linkedp, submission, cj);
+        success = comment(linkedp, submission, cj);
     elif isinstance(linkedp, praw.objects.Submission):
-        post(linkedp, submission, cj);
+        success = post(linkedp, submission, cj);
     else:
         logging.error("Not a Comment or Submission! (ID: " + lid + ")");
         return False;
 
-    linked.append(lid);
-    linkedsrc.append(sid);
-    return True;
+    if success:
+        linked.append(lid);
+        linkedsrc.append(sid);
+    else:
+        errorcount += 1;
+    return success;
 
 
 def edit_post(totessubmission, original):
@@ -303,25 +308,36 @@ def format_comment(original, isrcirclejerk):
 def post(s, original, isrcirclejerk):
     try:
         s.add_comment(format_comment(original, isrcirclejerk));
+        return True;
     except praw.errors.RateLimitExceeded:
         logging.debug("Can't comment (comment karma is too low)");
     except praw.errors.APIException as e:
         logging.warning(str(e));
+    except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError) as ex:
+        logging.error(str(ex));
+        if e.response.status_code >= 500:
+            time.sleep(5);
     except Exception:
         logging.error("Error adding comment (SID: " + str(s.id) + ")");
         logging.error(exi());
+    return False;
 
 
 def comment(c, original, isrcirclejerk):
     try:
         c.reply(format_comment(original, isrcirclejerk));
+        return True;
     except praw.errors.RateLimitExceeded:
         logging.debug("Can't comment (comment karma is too low)");
     except praw.errors.APIException as e:
         logging.warning(str(e));
+    except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError) as ex:
+        logging.error(str(ex));
+        time.sleep(5);
     except Exception as e:
         logging.error("Error adding comment (CID: " + str(c.id) + ")");
         logging.error(str(e));
+    return False;
 
 
 def format_link(post):
@@ -409,10 +425,11 @@ def setup_logging():
 
 # #### METHODS USED IN APR 1ST STUFF STARTS HERE #### #
 
+TESTING_APR = True;
 
 def ex_post(r):
     now = datetime.datetime.now();
-    if now.day != 1 and now.month != 4:
+    if (now.day != 1 and now.month != 4) or not TESTING_APR:
         return;
 
     if random.randint(0, 49) != 25:  # 1 in 50 chance.
@@ -421,7 +438,7 @@ def ex_post(r):
     c = get_post(r);
     replies = get_reply_count(c);
 
-    while c.id not in linkedp or replies < 3 or replies > 100: # 3 - 100 comment replies seems like a good number.
+    while c.id not in linkedp or replies < 3 or replies > 100 or TESTING_APR: # 3 - 100 comment replies seems like a good number.
         c = get_post(r);
         replies = get_reply_count(c);
 
@@ -443,8 +460,9 @@ def ex_post(r):
 def get_post(r):
     # Subreddits to post to!
     subreddits = ["subredditdrama", "metasubredditdrama", "subredditdramadrama", "circlejerk", "buttcoin", "bestof",
-                  "gaming", "technology", "kotakuinaction", "gamerghazi", "againstgamergate", "bitcoin", "undelete",
-                  "mensrights", "againstmensrights", "amrsucks", "srssucks", "php"];
+                  "kotakuinaction", "gamerghazi", "againstgamergate", "bitcoin", "undelete"];
+    if TESTING_APR:
+        subreddits = ["TMTest", "justcool393"];
     subreddit = r.get_subreddit(random.choice(subreddits));
     return subreddit.get_comments()[0];
 
@@ -465,17 +483,12 @@ def get_subreddit_and_post(tosubreddit):
 
     kiatitles = ["And this is why ethics is important", "Never gonna say goodbye until this sub is fixed."];
     ghazititles = ["Ah, another day, another Gator'rade", "You wouldn't get this from any other guy"];
-    lolphptitles = ["'Never gonna say goodbye to PHP'"];
 
-    subreddits = ["SubredditCancer", "conspiracy", "Bitcoin", "MensRights",
-                  "KotakuInAction", "GamerGhazi"];
+    subreddits = ["SubredditCancer", "conspiracy", "Bitcoin", "MensRights", "KotakuInAction", "GamerGhazi"];
 
 
     if tosubreddit.lower() == "subredditdrama":  # add MSRD and SRDD if the subreddit is SubredditDrama
         subreddits.extend(["MetaSubredditDrama", "SubredditDramaDrama"]);
-
-    if tosubreddit.lower() == "php":
-        subreddits.insert("lolphp");
 
     for s in subreddits:
         if s.lower() == tosubreddit.lower():
@@ -499,8 +512,8 @@ def get_subreddit_and_post(tosubreddit):
         subs.insert(choice, random.choice(mrtitles));
     elif choice == "GamerGhazi":
         subs.insert(choice, random.choice(ghazititles));
-    elif choice == "lolphp":
-        subs.insert(choice, random.choice(lolphptitles));
+    else:
+        subs.insert("error", "*Error getting post title*");
 
     return subs;
 
