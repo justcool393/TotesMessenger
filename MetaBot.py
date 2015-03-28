@@ -77,12 +77,12 @@ def main():
     logging.info("Linked: " + str(len(linked)) + ", src: " + str(len(linkedsrc)));
 
     check_at = 3600;
-    save_at = 7200;
+    save_at = 1800;
     last_logged = 0;
     last_saved = 0;
     times_zero = 1;
 
-    # link_subs(r, 100, 120); # Check the last 100 posts on startup
+    link_subs(r, 100, 10); # Check the last 100 posts on startup
     while True:
 
         if time.time() >= (last_saved + save_at):
@@ -102,7 +102,7 @@ def main():
                 errorcount = 0;
                 times_zero = 1;
 
-        link_subs(r, 25, 60);
+        link_subs(r, 25, 25);
         ex_post(r);  # ### Code for April Fool's Prank ### #
 
 def add_linked(r):
