@@ -427,6 +427,7 @@ def setup_logging():
 # #### METHODS USED IN APR 1ST STUFF STARTS HERE #### #
 
 TESTING_APR = True;
+MAX_TRIES = 10;
 
 def ex_post(r):
     now = datetime.datetime.now();
@@ -442,9 +443,12 @@ def ex_post(r):
     c = get_post(r);
     replies = get_reply_count(c);
 
-    while c.id not in linked or replies < 3 or replies > 100 or not TESTING_APR: # 3 - 100 comment replies seems like a good number.
+    count = 0;
+    while c.id in linked or replies < 3 or replies > 100 and not TESTING_APR: # 3 - 100 comment replies seems like a good number.
+        if count > MAX_TRIES: return; # give up after a few amount of posts
         c = get_post(r);
         replies = get_reply_count(c);
+        count += 1;
 
     linkedpost = get_subreddit_and_post(c.subreddit.display_name.lower());
     formattedpost = format_joke_post(linkedpost[0], linkedpost[1], c.subreddit.display_name.lower() == "circlejerk");
