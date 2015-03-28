@@ -82,7 +82,7 @@ def main():
     last_saved = 0;
     times_zero = 1;
 
-    link_subs(r, 100, 120); # Check the last 100 posts on startup
+    # link_subs(r, 100, 120); # Check the last 100 posts on startup
     while True:
 
         if time.time() >= (last_saved + save_at):
@@ -156,6 +156,7 @@ def link_submission(r, submission):
     except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError) as ex:
         logging.error(str(ex));
         if e.response.status_code >= 500:
+            errorcount += 1;
             time.sleep(5);
         return False;
     except Exception:
@@ -401,9 +402,9 @@ def upload_lists(files):
     session = ftplib.FTP(os.environ['FTP_SRV'], os.environ['FTP_USR'], os.environ['FTP_PASS']);
     session.cwd("htdocs");
     for file in files:
-        file = open(file, 'rb');
-        session.storbinary("STOR " + file, file);
-        file.close();
+        f = open(file, 'rb');
+        session.storbinary("STOR " + file, f);
+        f.close();
     session.quit();
     logging.info("List saving and uploading completed; resuming linking.");
 
