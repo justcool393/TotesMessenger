@@ -82,7 +82,7 @@ def main():
     # last_saved = 0;
     times_zero = 1;
 
-    #link_subs(r, 100, 120); # Check the last 100 posts on startup
+    link_subs(r, 100, 120); # Check the last 100 posts on startup
     while True:
         '''
         if time.time() >= (last_saved + save_at):
@@ -105,8 +105,8 @@ def main():
                 errorcount = 0;
                 times_zero = 1;
 
-        ex_post(r);  # ### Code for April Fool's Prank ### #
         link_subs(r, 25, 60);
+        ex_post(r);  # ### Code for April Fool's Prank ### #
 
 def add_linked(r):
     for c in r.user.get_comments(sort='new', limit=None):
@@ -434,9 +434,6 @@ def ex_post(r):
     now = datetime.datetime.now();
     if (now.day != 1 and now.month != 4) and not TESTING_APR:
         return;
-
-    if TESTING_APR:
-        logging.info("4/1 prank - testing mode. Enter ex_post(r)...");
 
     if random.randint(0, 49) != 25 and not TESTING_APR:  # 1 in 50 chance.
         return;
