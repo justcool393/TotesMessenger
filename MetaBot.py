@@ -1,4 +1,4 @@
-import logging, os, praw, re, time, traceback, sys, urllib2, requests.exceptions;
+import ftplib, logging, os, praw, re, time, traceback, sys, urllib2, requests.exceptions;
 import datetime, random; # for science. (apr 1st stuff)
 
 linked = [];
@@ -77,21 +77,17 @@ def main():
     logging.info("Linked: " + str(len(linked)) + ", src: " + str(len(linkedsrc)));
 
     check_at = 3600;
-    # save_at = 60;
+    save_at = 7200;
     last_logged = 0;
-    # last_saved = 0;
+    last_saved = 0;
     times_zero = 1;
 
     link_subs(r, 100, 120); # Check the last 100 posts on startup
     while True:
-        '''
+
         if time.time() >= (last_saved + save_at):
             last_saved = time.time();
-            save_list("linked.lst", linked);
-            save_list("linkedsrc.lst", linkedsrc);
-            save_list("skipped.lst", skipped);
-            save_list("skippedsrc.lst", skippedsrc);
-        ''' # Saving is disabled due to our host works.
+            save_lists(["linked.lst", "linkedsrc.lst", "skipped.lst", "skippedsrc.lst"], [linked, linkedsrc, skipped, skippedsrc]);
 
         if time.time() >= (last_logged + check_at):
 
@@ -121,14 +117,7 @@ def add_linked(r):
             linkedsrc.append(re.sub("http://np.reddit.com/r/.{1,20}/comments/", "", p)[:-1]);
 
 def create_files():
-    f = open("linked.lst", "a");
-    f.close();
-    f = open("linkedsrc.lst", "a");
-    f.close();
-    f = open("skipped.lst", "a");
-    f.close();
-    f = open("skippedsrc.lst", "a");
-    f.close();
+    download_lists(["linked.lst", "linkedsrc.lst", "skipped.lst", "skippedsrc.lst"]);
 
 def link_subs(r, count, delay):
     global linkedcount;
@@ -395,13 +384,33 @@ def load_list(file):
     f.close();
     return data.split();
 
-def save_list(file, list):
-    f = open(file, "wb");
-    str = "";
-    for s in list:
-        str = str + s + " ";
-    f.write(str);
-    f.close();
+def save_lists(files, lists):
+    i = 0;
+    for file in files:
+        f = open(file, "wb");
+        str = "";
+        for s in lists[i]:
+            str = str + s + " ";
+        f.write(str);
+        f.close();
+        i += 1;
+    upload_lists(files);
+
+def upload_lists(files):
+    session = ftplib.FTP(os.environ('FTP_SRV'), os.environ('FTP_USR'), os.environ('FTP_PASS'));
+    session.cwd("htdocs");
+    for file in files:
+        file = open(file, 'rb');
+        session.storbinary("STOR " + file, file);
+        file.close();
+    session.quit();
+
+def download_lists(files):
+    session = ftplib.FTP(os.environ('FTP_SRV'), os.environ('FTP_USR'), os.environ('FTP_PASS'));
+    session.cwd("htdocs");
+    for file in files:
+        session.retrbinary("RETR " + file, open(file, 'wb').write);
+    session.quit();
 
 
 def log_crash():
