@@ -74,7 +74,7 @@ def main():
     logging.info("Logged in to reddit...");
 
     add_linked(r);
-    logging.info("L: " + str(len(linked)) + ", LS: " + str(len(linkedsrc)), ", S:" + str(len(skipped)) + ", SS: " + str(len(skippedsrc)));
+    logging.info("L: " + str(len(linked)) + ", LS: " + str(len(linkedsrc)) + ", S:" + str(len(skipped)) + ", SS: " + str(len(skippedsrc)));
 
     check_at = 3600;
     save_at = 1800;
