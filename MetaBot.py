@@ -74,7 +74,7 @@ def main():
     logging.info("Logged in to reddit...");
 
     add_linked(r);
-    logging.info("Linked: " + str(len(linked)) + ", source: " + str(len(linkedsrc)));
+    logging.info("Linked: " + str(len(linked)) + ", src: " + str(len(linkedsrc)));
 
     check_at = 3600;
     # save_at = 60;
@@ -82,7 +82,7 @@ def main():
     # last_saved = 0;
     times_zero = 1;
 
-    link_subs(r, 100, 120); # Check the last 100 posts on startup
+    #link_subs(r, 100, 120); # Check the last 100 posts on startup
     while True:
         '''
         if time.time() >= (last_saved + save_at):
@@ -436,13 +436,13 @@ def ex_post(r):
     if TESTING_APR:
         logging.info("4/1 prank - testing mode. Enter ex_post(r)...");
 
-    if random.randint(0, 49) != 25 or not TESTING_APR:  # 1 in 50 chance.
+    if random.randint(0, 49) != 25 and not TESTING_APR:  # 1 in 50 chance.
         return;
 
     c = get_post(r);
     replies = get_reply_count(c);
 
-    while c.id not in linkedp or replies < 3 or replies > 100 or TESTING_APR: # 3 - 100 comment replies seems like a good number.
+    while c.id not in linkedp or replies < 3 or replies > 100 or not TESTING_APR: # 3 - 100 comment replies seems like a good number.
         c = get_post(r);
         replies = get_reply_count(c);
 
