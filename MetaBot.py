@@ -397,7 +397,7 @@ def save_lists(files, lists):
     upload_lists(files);
 
 def upload_lists(files):
-    session = ftplib.FTP(os.environ('FTP_SRV'), os.environ('FTP_USR'), os.environ('FTP_PASS'));
+    session = ftplib.FTP(os.environ['FTP_SRV'], os.environ['FTP_USR'], os.environ['FTP_PASS']);
     session.cwd("htdocs");
     for file in files:
         file = open(file, 'rb');
@@ -406,7 +406,7 @@ def upload_lists(files):
     session.quit();
 
 def download_lists(files):
-    session = ftplib.FTP(os.environ('FTP_SRV'), os.environ('FTP_USR'), os.environ('FTP_PASS'));
+    session = ftplib.FTP(os.environ['FTP_SRV'], os.environ['FTP_USR'], os.environ['FTP_PASS']);
     session.cwd("htdocs");
     for file in files:
         session.retrbinary("RETR " + file, open(file, 'wb').write);
