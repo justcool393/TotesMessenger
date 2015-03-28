@@ -468,7 +468,8 @@ def get_post(r):
     if TESTING_APR:
         subreddits = ["TMTest", "justcool393"];
     subreddit = r.get_subreddit(random.choice(subreddits));
-    return subreddit.get_comments()[0];
+    for c in subreddit.get_comments(limit=1):
+        return c;
 
 def get_subreddit_and_post(tosubreddit):
     subs = [];
