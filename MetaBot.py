@@ -152,6 +152,7 @@ def link_subs(r, count, delay):
 
 
 def link_submission(r, submission):
+    global errorcount;
     url = re.sub("(\#|\?).{1,}", "", submission.url);
     if not is_comment(url):
         return False;
