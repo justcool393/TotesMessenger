@@ -83,6 +83,7 @@ def main():
     times_zero = 1;
 
     link_subs(r, 100, 10); # Check the last 100 posts on startup
+    logging.info("Finished linking startup posts...");
     while True:
 
         if time.time() >= (last_saved + save_at):
@@ -115,7 +116,9 @@ def add_linked(r):
         # Add linkedsrc one in to one method.
         posts = re.findall("http://np.reddit.com/r/.{1,20}/comments/.{1,8}/", c.body);
         for p in posts:
-            linkedsrc.append(re.sub("http://np.reddit.com/r/.{1,20}/comments/", "", p)[:-1]);
+            pid = re.sub("http://np.reddit.com/r/.{1,20}/comments/", "", p)[:-1];
+            if pid not in linkedsrc:
+                linkedsrc.append(pid);
 
 def create_files():
     download_lists(["linked.lst", "linkedsrc.lst", "skipped.lst", "skippedsrc.lst"]);
