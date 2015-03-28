@@ -74,7 +74,7 @@ def main():
     logging.info("Logged in to reddit...");
 
     add_linked(r);
-    logging.info("Linked: " + str(len(linked)) + ", src: " + str(len(linkedsrc)));
+    logging.info("L: " + str(len(linked)) + ", LS: " + str(len(linkedsrc)), ", S:" + str(len(skipped)) + ", SS: " + str(len(skippedsrc)));
 
     check_at = 3600;
     save_at = 1800;
@@ -83,11 +83,10 @@ def main():
     times_zero = 1;
 
     link_subs(r, 100, 10); # Check the last 100 posts on startup
-    logging.info("Finished linking startup posts...");
     while True:
 
         if time.time() >= (last_saved + save_at):
-            logging.info("Saving list data, expect some delay in linking...");
+            logging.info("Saving list data, expect short delay...");
             last_saved = time.time();
             save_lists(["linked.lst", "linkedsrc.lst", "skipped.lst", "skippedsrc.lst"], [linked, linkedsrc, skipped, skippedsrc]);
 
