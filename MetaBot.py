@@ -512,23 +512,23 @@ def get_subreddit_and_post(tosubreddit):
 
     choice = random.choice(subreddits);
     if choice == "KotakuInAction":
-        subs.insert(choice, random.choice(kiatitles));
+        subs.extend([choice, random.choice(kiatitles)]);
     elif choice == "SubredditCancer":
-        subs.insert(choice, random.choice(srctitles));
+        subs.extend([choice, random.choice(srctitles)]);
     elif choice == "conspiracy":
-        subs.insert(choice, random.choice(conspiracytitles));
+        subs.extend([choice, random.choice(conspiracytitles)]);
     elif choice == "Bitcoin":
-        subs.insert(choice, random.choice(bitcointitles));
+        subs.extend([choice, random.choice(bitcointitles)]);
     elif choice == "SubredditDramaDrama":
-        subs.insert(choice, random.choice(srddtitles));
+        subs.extend([choice, random.choice(srddtitles)]);
     elif choice == "MetaSubredditDrama":
-        subs.insert(choice, random.choice(msrdtitles));
+        subs.extend([choice, random.choice(msrdtitles)]);
     elif choice == "MensRights":
-        subs.insert(choice, random.choice(mrtitles));
+        subs.extend([choice, random.choice(mrtitles)]);
     elif choice == "GamerGhazi":
-        subs.insert(choice, random.choice(ghazititles));
+        subs.extend([choice, random.choice(ghazititles)]);
     else:
-        subs.insert("error", "*Error getting post title*");
+        subs.extend(["error", "*Error getting post title*"]);
 
     return subs;
 
