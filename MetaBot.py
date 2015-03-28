@@ -86,6 +86,7 @@ def main():
     while True:
 
         if time.time() >= (last_saved + save_at):
+            logging.info("Saving list data, expect some delay in linking...");
             last_saved = time.time();
             save_lists(["linked.lst", "linkedsrc.lst", "skipped.lst", "skippedsrc.lst"], [linked, linkedsrc, skipped, skippedsrc]);
 
@@ -404,6 +405,7 @@ def upload_lists(files):
         session.storbinary("STOR " + file, file);
         file.close();
     session.quit();
+    logging.info("List saving and uploading completed; resuming linking.");
 
 def download_lists(files):
     session = ftplib.FTP(os.environ['FTP_SRV'], os.environ['FTP_USR'], os.environ['FTP_PASS']);
@@ -411,6 +413,7 @@ def download_lists(files):
     for file in files:
         session.retrbinary("RETR " + file, open(file, 'wb').write);
     session.quit();
+    logging.info("List downloading completed.");
 
 
 def log_crash():
