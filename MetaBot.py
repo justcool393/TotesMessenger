@@ -104,8 +104,9 @@ def main():
                 linkedcount = 0;
                 errorcount = 0;
                 times_zero = 1;
-        link_subs(r, 25, 60);
+
         ex_post(r);  # ### Code for April Fool's Prank ### #
+        link_subs(r, 25, 60);
 
 def add_linked(r):
     for c in r.user.get_comments(sort='new', limit=None):
@@ -432,7 +433,10 @@ def ex_post(r):
     if (now.day != 1 and now.month != 4) or not TESTING_APR:
         return;
 
-    if random.randint(0, 49) != 25:  # 1 in 50 chance.
+    if TESTING_APR:
+        logging.info("4/1 prank - testing mode. Enter ex_post(r)...");
+
+    if random.randint(0, 49) != 25 or TESTING_APR:  # 1 in 50 chance.
         return;
 
     c = get_post(r);
