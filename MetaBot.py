@@ -30,7 +30,8 @@ srcblacklist = ["depression", "lifeafternarcissists", "managedbynarcissists", "m
                 "rbnrelationships", "rbnspouses", "suicidewatch", "switcharoo", "switcheroo", "trolledbynarcissists",
                 "unremovable", "politic", "mlplite", "risingthreads", "uncensorship", "leagueofriot", "benlargefanclub",
                 "fitnesscirclejerk", "taiwancirclejerk", "requestedtweaks", "jaxbrew", "floridabrew", "aggregat0r",
-                "gamecollectingjerk", "technews2015", "runningcirclejerk", "nosillysuffix", "leoduhvinci"];
+                "gamecollectingjerk", "technews2015", "runningcirclejerk", "nosillysuffix", "leoduhvinci",
+                "slowplounge"];
 
 banned = ["reddit.com", "minecraft", "adviceanimals", "askreddit", "worldnews", "femradebates", "pcmasterrace",
           "purplepilldebate", "slrep", "funny", "theredpill", "personalfinance", "india", "lifehacks", "kotakuinaction",
@@ -77,7 +78,7 @@ def main():
     logging.info("L: " + str(len(linked)) + ", LS: " + str(len(linkedsrc)) + ", S:" + str(len(skipped)) + ", SS: " + str(len(skippedsrc)));
 
     check_at = 3600.0;
-    save_at = 600.0;
+    save_at = 1800.0;
     last_logged = 0.0;
     last_saved = 0.0;
     times_zero = 1;
