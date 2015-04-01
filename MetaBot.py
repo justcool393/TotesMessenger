@@ -458,11 +458,11 @@ def ex_post(r):
     now = datetime.datetime.now()
     if (now.day != 1 and now.month != 4) and not TESTING_APR:
         return
-    logging.info("apr1st debug, done");
+    logging.info("apr1st debug, done")
 
-    if random.randint(0, 20) != 10 and not TESTING_APR:  # 1 in 50 chance.
+    if random.randint(0, 15) != 7 and not TESTING_APR:  # 1 in 50 chance.
+        logging.info("not this time")
         return
-        logging.info("not this time");
     logging.info("time")
 
     c = get_post(r)
