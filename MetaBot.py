@@ -104,7 +104,7 @@ def main():
                 errorcount = 0
                 times_zero = 1
 
-        link_subs(r, 25, 30)
+        link_subs(r, 25, 10)
         ex_post(r)  # ### Code for April Fool's Prank ### #
 
 
