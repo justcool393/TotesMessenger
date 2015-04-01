@@ -83,9 +83,8 @@ def main():
     last_saved = 0.0
     times_zero = 1
 
-    link_subs(r, 100, 0)  # Check the last 100 posts on startup
+    #link_subs(r, 100, 0)  # Check the last 100 posts on startup
     while True:
-
         if time.time() - last_saved >= save_at:
             logging.info("Saving list data, expect short delay...")
             last_saved = time.time()
@@ -455,18 +454,22 @@ MAX_POSTS = 20
 
 
 def ex_post(r):
+    logging.info("ex_post()");
     now = datetime.datetime.now()
     if (now.day != 1 and now.month != 4) and not TESTING_APR:
         return
+    logging.info("apr1st debug, done");
 
     if random.randint(0, 20) != 10 and not TESTING_APR:  # 1 in 50 chance.
         return
+        logging.info("not this time");
+    logging.info("time")
 
     c = get_post(r)
     replies = get_reply_count(c)
 
     count = 0
-    while (c.id in linked or replies > 100) and not TESTING_APR:  # 3 - 100 comment replies seems like a good number.
+    while c.id in linked or replies > 100:  # 3 - 100 comment replies seems like a good number.
         if count > MAX_TRIES:
             logging.error("Couldn't find a good post...giving up.")
             return  # give up after a few amount of posts
@@ -500,6 +503,7 @@ def get_post(r):
         if random.randint(0, choice - 1) <= 0 or choice == 0:
             return c
         choice -= 1
+        logging.info(str(choice) + "/" + str(MAX_POSTS));
 
 
 def get_subreddit_and_post(tosubreddit):
