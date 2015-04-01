@@ -454,7 +454,6 @@ MAX_POSTS = 20
 
 
 def ex_post(r):
-    logging.info("ex_post()");
     now = datetime.datetime.now()
     if (now.day != 1 and now.month != 4) and not TESTING_APR:
         return
