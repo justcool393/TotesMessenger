@@ -54,19 +54,10 @@ test_reddits = ["justcool393", "tmtest", "totesmessenger"]
 
 
 def main():
-    global linked
-    global linkedsrc
-    global skipped
-    global skippedsrc
     global linkedcount
     global errorcount
 
-    create_files()
-
-    linked = load_list("linked.lst")
-    linkedsrc = load_list("linkedsrc.lst")
-    skipped = load_list("skipped.lst")
-    skippedsrc = load_list("skippedsrc.lst")
+    load_lists()
 
     r = praw.Reddit("Links to reddit posts from other places in reddit", domain="api.reddit.com", log_requests=0)
     r.login(user, os.environ['REDDIT_PASS'])
@@ -83,7 +74,7 @@ def main():
     last_saved = 0.0
     times_zero = 1
 
-    #link_subs(r, 100, 0)  # Check the last 100 posts on startup
+    link_subs(r, 100, 0)  # Check the last 100 posts on startup
     while True:
         if time.time() - last_saved >= save_at:
             logging.info("Saving list data, expect short delay...")
@@ -103,7 +94,7 @@ def main():
                 errorcount = 0
                 times_zero = 1
 
-        link_subs(r, 25, 10)
+        link_subs(r, 50, 10)
 
 
 def add_linked(r):
@@ -142,8 +133,6 @@ def link_submission(r, submission):
     url = re.sub("(\#|\?|\.).{1,}", "", submission.url)
     if not is_comment(url):
         return False
-
-    linkedp = None
 
     try:
         linkedp = get_object(r, url)
@@ -380,7 +369,20 @@ def download_lists(files):
     logging.info("List downloading completed.")
 
 
-# End loading and saaving to permanent storage
+def load_lists():
+    global linked
+    global linkedsrc
+    global skipped
+    global skippedsrc
+
+    create_files()
+    linked = load_list("linked.lst")
+    linkedsrc = load_list("linkedsrc.lst")
+    skipped = load_list("skipped.lst")
+    skippedsrc = load_list("skippedsrc.lst")
+
+
+# End loading and saving to permanent storage
 
 def handle_http_error(ex):
     global errorcount
