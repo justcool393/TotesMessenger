@@ -140,7 +140,7 @@ def link_subs(r, count, delay):
 def link_submission(r, submission):
     global linkedcount
     global errorcount
-    url = re.sub("(\#|\?).{1,}", "", submission.url)
+    url = re.sub("(\#|\?|\.).{1,}", "", submission.url)
     if not is_comment(url):
         return False
 
@@ -204,6 +204,7 @@ def link_submission(r, submission):
             linkedsrc.append(sid)
             if lid not in linked:
                 linked.append(lid)
+            linkedcount += 1;
         else:
             errorcount += 1
         return success
@@ -457,23 +458,17 @@ def ex_post(r):
     now = datetime.datetime.now()
     if (now.day != 1 and now.month != 4) and not TESTING_APR:
         return
-    logging.info("apr1st debug, done")
 
     if random.randint(0, 15) != 7 and not TESTING_APR:  # 1 in 50 chance.
-        logging.info("not this time")
         return
-    logging.info("time")
 
     c = get_post(r)
-    replies = get_reply_count(c)
 
     count = 0
-    while c.id in linked or replies > 100:  # 3 - 100 comment replies seems like a good number.
+    while c.id in linked:  # 3 - 100 comment replies seems like a good number.
         if count > MAX_TRIES:
-            logging.error("Couldn't find a good post...giving up.")
             return  # give up after a few amount of posts
         c = get_post(r)
-        replies = get_reply_count(c)
         count += 1
 
     linkedpost = get_subreddit_and_post(c.subreddit.display_name.lower())
@@ -502,7 +497,6 @@ def get_post(r):
         if random.randint(0, choice - 1) <= 0 or choice == 0:
             return c
         choice -= 1
-        logging.info(str(choice) + "/" + str(MAX_POSTS));
 
 
 def get_subreddit_and_post(tosubreddit):
@@ -554,16 +548,6 @@ def get_subreddit_and_post(tosubreddit):
         subs.extend(["error", "*Error getting post title*"])
 
     return subs
-
-
-def get_reply_count(s):
-    if isinstance(s, praw.objects.Comment):
-        return len(s.replies)
-    else:
-        s.replace_more_comments(limit=None, threshold=0)
-        flat_comments = praw.helpers.flatten_tree(s.comments)
-        return len(flat_comments)
-    return -1
 
 
 def format_joke_post(subreddit, title, isrcirclejerk):
