@@ -104,7 +104,6 @@ def main():
                 times_zero = 1
 
         link_subs(r, 25, 10)
-        ex_post(r)  # ### Code for April Fool's Prank ### #
 
 
 def add_linked(r):
