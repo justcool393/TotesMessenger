@@ -121,6 +121,7 @@ def link_subs(r, count, delay):
         try:
             if link_submission(r, submission):
                 time.sleep(2)
+                logging.info("Success")
         except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError) as ex:
             handle_http_error(ex)
 
