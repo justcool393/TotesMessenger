@@ -121,6 +121,7 @@ def link_subs(r, count, delay):
         try:
             if link_submission(r, submission):
                 time.sleep(2)
+                logging.info("debug")
         except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError) as ex:
             handle_http_error(ex)
 
@@ -265,10 +266,10 @@ def format_comment(original, isrcirclejerk):
 def comment(p, original, isrcirclejerk):
     cmt = format_comment(original, isrcirclejerk)
     try:
-        if isinstance(p, praw.objects.Submission):
-            s.add_comment(cmt)
-        else:
+        if isinstance(p, praw.objects.Comment):
             s.reply(cmt)
+        else:
+            s.add_comment(cmt)
         return True
     except praw.errors.RateLimitExceeded:
         logging.debug("Can't comment (comment karma is too low)")
