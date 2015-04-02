@@ -266,9 +266,9 @@ def comment(p, original, isrcirclejerk):
     cmt = format_comment(original, isrcirclejerk)
     try:
         if isinstance(p, praw.objects.Comment):
-            s.reply(cmt)
+            p.reply(cmt)
         else:
-            s.add_comment(cmt)
+            p.add_comment(cmt)
         return True
     except praw.errors.RateLimitExceeded:
         logging.debug("Can't comment (comment karma is too low)")
@@ -277,7 +277,7 @@ def comment(p, original, isrcirclejerk):
     except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError) as ex:
         handle_http_error(ex)
     except Exception:
-        logging.error("Error adding comment (SID: " + str(s.id) + ")")
+        logging.error("Error adding comment (SID: " + str(p.id) + ")")
         logging.error(exi())
     return False
 
