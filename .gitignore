@@ -5,3 +5,5 @@
 Procfile
 requirements.txt
 *.log
+.env
+totes.sqlite3
