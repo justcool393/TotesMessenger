@@ -121,7 +121,6 @@ def link_subs(r, count, delay):
         try:
             if link_submission(r, submission):
                 time.sleep(2)
-                logging.info("debug")
         except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError) as ex:
             handle_http_error(ex)
 
@@ -131,7 +130,7 @@ def link_subs(r, count, delay):
 def link_submission(r, submission):
     global linkedcount
     global errorcount
-    url = re.sub("(\#|\?|\.).{1,}", "", submission.url)
+    url = re.sub("((\#|\?).{1,}|\.compact)", "", submission.url)
     if not is_comment(url):
         return False
 
