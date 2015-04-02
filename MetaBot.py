@@ -211,14 +211,7 @@ def link_submission(r, submission):
 
     cj = srlower == "circlejerk"  # check if our subreddit is /r/circlejerk so we can user our specialized msg for it
 
-    if isinstance(linkedp, praw.objects.Comment):
-        success = comment(linkedp, submission, cj)
-    elif isinstance(linkedp, praw.objects.Submission):
-        success = post(linkedp, submission, cj)
-    else:
-        logging.error("Not a Comment or Submission! (ID: " + lid + ")")
-        errorcount += 1
-        return False
+    success = comment(linkedp, submission, cj)
 
     if success:
         linked.append(lid)
@@ -234,10 +227,7 @@ def edit_post(totessubmission, original):
     text = re.sub("\*\^If.{1,}", "", text)
     text = re.sub("\^Please.{1,}", "", text)  # substitute old footer as well
     text = re.sub("Do not vote.{1,}", "", text)  # substitute original footer as well
-    text = text + format_link(original) + u"""
-
-
-""" + FOOTER
+    text = text + format_link(original) + u"""\n\n\n""" + FOOTER
     totessubmission.edit(text)
     return True
 
@@ -280,18 +270,17 @@ def format_comment(original, isrcirclejerk):
         cmt = CJ_HEADER
     else:
         cmt = HEADER
-    cmt = cmt + u"""
-
-{link}
-
-""" + FOOTER
+    cmt = cmt + u"\n\n\n{link}\n\n" + FOOTER
 
     return cmt.format(link=format_link(original))
 
-
-def post(s, original, isrcirclejerk):
+def comment(p, original, isrcirclejerk):
+    cmt = format_comment(original, isrcirclejerk)
     try:
-        s.add_comment(format_comment(original, isrcirclejerk))
+        if isinstance(p, praw.objects.Submission):
+            s.add_comment(cmt)
+        else:
+            s.reply(cmt)
         return True
     except praw.errors.RateLimitExceeded:
         logging.debug("Can't comment (comment karma is too low)")
@@ -305,42 +294,18 @@ def post(s, original, isrcirclejerk):
     return False
 
 
-def comment(c, original, isrcirclejerk):
-    try:
-        c.reply(format_comment(original, isrcirclejerk))
-        return True
-    except praw.errors.RateLimitExceeded:
-        logging.debug("Can't comment (comment karma is too low)")
-    except praw.errors.APIException as ex:
-        logging.warning(str(ex))
-    except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError) as ex:
-        handle_http_error(ex)
-    except Exception as ex:
-        logging.error("Error adding comment (CID: " + str(c.id) + ")")
-        logging.error(str(ex))
-    return False
-
-
 def format_link(post):
     srurl = post.subreddit.url
     nsfw = post.subreddit.name.lower() in nsfwreddits or post.subreddit.over18 or post.over_18
     text = u"- [" + srurl[:-1] + "] "
     if nsfw:
         text = text + u"[NSFW] "
-    return text + u"[" + post.title + "](" + np(post.permalink) + ")\n"
+    return text + u"[" + post.title.replace("]", "\]") + "](" + changesubdomain(post.permalink, "www") + ")\n"
 
 
 def changesubdomain(link, sub):
     l = re.sub(r"http[s]?://[a-z]{0,3}\.?[a-z]{0,2}\.?reddit\.com", "", link)
     return "http://" + sub + ".reddit.com" + l
-
-
-def unnp(link):
-    return changesubdomain(link, "www")
-
-
-def np(link):
-    return changesubdomain(link, "np")
 
 
 def get_cid(url):
@@ -351,7 +316,7 @@ def get_cid(url):
 
 
 def get_object(r, url):
-    url = unnp(url)
+    url = changesubdomain(url, "www");
     obj = praw.objects.Submission.from_url(r, url)
     a = re.compile("http[s]?://[a-z]{0,3}\.?reddit\.com/r/.{1,20}/comments/.{6,8}/.*/.{6,8}")
 
@@ -444,125 +409,7 @@ def setup_logging():
     logging.getLogger("requests").setLevel(logging.WARNING)
     ch = logging.StreamHandler(sys.stdout)
     ch.setLevel(logging.INFO)
-
     root.addHandler(ch)
-
-# #### METHODS USED IN APR 1ST STUFF STARTS HERE #### #
-
-TESTING_APR = False
-MAX_TRIES = 5
-MAX_POSTS = 20
-
-
-def ex_post(r):
-    now = datetime.datetime.now()
-    if (now.day != 1 and now.month != 4) and not TESTING_APR:
-        return
-
-    if random.randint(0, 15) != 7 and not TESTING_APR:  # 1 in 50 chance.
-        return
-
-    c = get_post(r)
-
-    count = 0
-    while c.id in linked:  # 3 - 100 comment replies seems like a good number.
-        if count > MAX_TRIES:
-            return  # give up after a few amount of posts
-        c = get_post(r)
-        count += 1
-
-    linkedpost = get_subreddit_and_post(c.subreddit.display_name.lower())
-    formattedpost = format_joke_post(linkedpost[0], linkedpost[1], c.subreddit.display_name.lower() == "circlejerk")
-    try:
-        c.reply(formattedpost)
-        logging.info("Added a joke comment successfully")
-    except praw.errors.RateLimitExceeded:
-        logging.debug("Can't comment (comment karma is too low)")
-    except praw.errors.APIException as e:
-        logging.warning(str(e))
-    except Exception as e:
-        logging.error("Error adding joke comment (CID: " + str(c.id) + ")")
-        logging.error(str(e))
-    linked.append(linkedpost)  # add our post to the linked post stuff so we don't post to the same comment.
-
-
-def get_post(r):
-    # Subreddits to post to!
-    subreddits = ["subredditdrama", "metasubredditdrama", "subredditdramadrama", "circlejerk", "buttcoin", "bestof",
-                  "botsrights", "videos", "pics", "gamerghazi", "againstgamergate", "bitcoin", "undelete"]
-    subreddit = r.get_subreddit(random.choice(subreddits))
-
-    choice = MAX_POSTS
-    for c in subreddit.get_comments(limit=MAX_POSTS):
-        if random.randint(0, choice - 1) <= 0 or choice == 0:
-            return c
-        choice -= 1
-
-
-def get_subreddit_and_post(tosubreddit):
-    subs = []
-
-    srctitles = ["Let's fight the cancer with this post.", "Mods still won't remove this post even when proven wrong",
-                 "The cancer speaks!", "Ah, the tumor doesn't give up now?", "The cancer is giving up!",
-                 "And if you ask me how I'm feeling, this is why reddit sucks."]
-    conspiracytitles = ["In which we prove a govt. coverup is involved", "Reddit never says goodbye to shills",
-                        "Don't tell me you're too blind to see"]
-    bitcointitles = ["This is actually really good for the bitcoin market", "Could this be the game-changer?",
-                     "Merchant adoption, here we come!"]
-    srddtitles = ["I'm sure this thread will go well.", "We're no stranger to drama here"]
-    mrtitles = ["We're no strangers to this. What if the genders were reversed?",
-                "Gotta make you understand. This is not cool."]
-    msrdtitles = ["The mods are giving up on this subreddit", "SRD, we know the game and we're going to play it."]
-
-    kiatitles = ["And this is why ethics is important", "Never gonna say goodbye until this sub is fixed."]
-    ghazititles = ["Ah, another day, another Gator'rade", "You wouldn't get this from any other guy"]
-
-    subreddits = ["SubredditCancer", "conspiracy", "Bitcoin", "MensRights", "KotakuInAction", "GamerGhazi"]
-
-    if tosubreddit.lower() == "subredditdrama":  # add MSRD and SRDD if the subreddit is SubredditDrama
-        subreddits.extend(["MetaSubredditDrama", "SubredditDramaDrama"])
-
-    for s in subreddits:
-        if s.lower() == tosubreddit.lower():
-            subreddits.remove(s)
-            break
-
-    choice = random.choice(subreddits)
-    if choice == "KotakuInAction":
-        subs.extend([choice, random.choice(kiatitles)])
-    elif choice == "SubredditCancer":
-        subs.extend([choice, random.choice(srctitles)])
-    elif choice == "conspiracy":
-        subs.extend([choice, random.choice(conspiracytitles)])
-    elif choice == "Bitcoin":
-        subs.extend([choice, random.choice(bitcointitles)])
-    elif choice == "SubredditDramaDrama":
-        subs.extend([choice, random.choice(srddtitles)])
-    elif choice == "MetaSubredditDrama":
-        subs.extend([choice, random.choice(msrdtitles)])
-    elif choice == "MensRights":
-        subs.extend([choice, random.choice(mrtitles)])
-    elif choice == "GamerGhazi":
-        subs.extend([choice, random.choice(ghazititles)])
-    else:
-        subs.extend(["error", "*Error getting post title*"])
-
-    return subs
-
-
-def format_joke_post(subreddit, title, isrcirclejerk):
-    if isrcirclejerk:
-        cmt = CJ_HEADER
-    else:
-        cmt = HEADER
-    cmt = cmt + u"""
-
-{link}
-
-""" + FOOTER
-    return cmt.format(link=u"- [/r/" + subreddit + "] [" + title + "](http://bringvictory.com/)")
-
-# #### METHODS USED IN APR 1ST STUFF END HERE #### #
 
 try:
     setup_logging()
