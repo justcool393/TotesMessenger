@@ -1,1 +1,1 @@
-worker: python MetaBot.py
+worker: python totes.py
