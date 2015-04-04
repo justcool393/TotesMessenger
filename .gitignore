@@ -7,3 +7,8 @@ requirements.txt
 *.log
 .env
 totes.sqlite3
+/bin
+/share
+/lib
+/__pycache__
+settings.pyc
