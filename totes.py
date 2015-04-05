@@ -359,9 +359,7 @@ Source: {}
 
         parts.append("""
 [](#footer)*^(If you follow any of the above links, respect the rules of reddit and don't vote.)
-            ^\([Info](/r/TotesMessenger/wiki/)
-            ^/
-            ^[Contact](/message/compose/?to=\/r\/TotesMessenger))* [](#bot)
+^\([Info](/r/TotesMessenger/wiki/) ^/ ^[Contact](/message/compose/?to=\/r\/TotesMessenger))* [](#bot)
         """)
 
         return "\n\n".join(parts)
