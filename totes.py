@@ -398,6 +398,7 @@ class Totes:
             except RECOVERABLE_EXC as e:
                 log_error(e)
                 db.rollback()
+                log.debug("Something wrong with source: {}".format(submission.url))
                 continue
 
             log.debug("Got source: {}".format(submission.url))
@@ -411,6 +412,7 @@ class Totes:
             except RECOVERABLE_EXC as e:
                 log_error(e)
                 db.rollback()
+                log.debug("Something wrong with link: {}".format(submission.permalink))
                 continue
 
             log.debug("Got link: {}".format(submission.permalink))
