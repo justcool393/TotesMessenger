@@ -55,7 +55,8 @@ def np(url):
     return "//np.reddit.com{}".format(url.path)
 
 def escape_title(title):
-    return title.replace("*", "\*").replace("[", "\[").replace("]", "\]").replace("^", "\^").replace("`", "\`")
+    return title.replace("*", "\*").replace("[", "\[").replace("]", "\]")\
+        .replace("^", "\^").replace("`", "\`")
 
 def source_exists(id):
     cur.execute("SELECT 1 FROM sources WHERE id=%s LIMIT 1", (id,))

@@ -1,6 +1,19 @@
 # Links submitted in these subs that point to other posts and comments
 # (sources) elsewhere on reddit are skipped:
-SKIP_LINK = set(["anime", "asianamerican", "askhistorians", "askscience",
+SKIP_LINK = set(["depression", "lifeafternarcissists", "managedbynarcissists",
+                   "moderationlog", "raisedbynarcissists", "rbnathome",
+                   "rbnbookclub", "rbnchildcare", "rbnfavors", "rbngames",
+                   "rbnlifeskills", "rbnmovienight", "rbnrelationships",
+                   "rbnspouses", "suicidewatch", "switcharoo", "switcheroo",
+                   "trolledbynarcissists", "unremovable", "politic", "mlplite",
+                   "risingthreads", "uncensorship", "leagueofriot",
+                   "benlargefanclub", "fitnesscirclejerk", "taiwancirclejerk",
+                   "requestedtweaks", "jaxbrew", "floridabrew", "aggregat0r",
+                   "gamecollectingjerk", "technews2015", "serendipity"])
+
+# Posts and comments (sources) in these subs that are linked to from elsewhere
+# on reddit are ignored:
+SKIP_SOURCE = set(["anime", "asianamerican", "askhistorians", "askscience",
                  "aww", "benfrick", "bmw", "chicagosuburbs", "cosplay",
                  "cumberbitches", "d3gf", "deer", "depression", "depthhub",
                  "drinkingdollars", "forwardsfromgrandma", "futurology",
@@ -10,19 +23,6 @@ SKIP_LINK = set(["anime", "asianamerican", "askhistorians", "askscience",
                  "programmingcirclejerk", "raerthdev", "rants", "salvia",
                  "science", "seiko", "shoplifting", "sketches", "sociopath",
                  "suicidewatch", "talesfromtechsupport", "unitedkingdom"])
-
-# Posts and comments (sources) in these subs that are linked to from elsewhere
-# on reddit are ignored:
-SKIP_SOURCE = set(["depression", "lifeafternarcissists", "managedbynarcissists",
-                   "moderationlog", "raisedbynarcissists", "rbnathome",
-                   "rbnbookclub", "rbnchildcare", "rbnfavors", "rbngames",
-                   "rbnlifeskills", "rbnmovienight", "rbnrelationships",
-                   "rbnspouses", "suicidewatch", "switcharoo", "switcheroo",
-                   "trolledbynarcissists", "unremovable", "politic", "mlplite",
-                   "risingthreads", "uncensorship", "leagueofriot",
-                   "benlargefanclub", "fitnesscirclejerk", "taiwancirclejerk",
-                   "requestedtweaks", "jaxbrew", "floridabrew", "aggregat0r",
-                   "gamecollectingjerk", "technews2015"])
 
 # We can't post in these subs, so posts and comments (sources) in these subs
 # don't get notified:
@@ -39,7 +39,7 @@ BANNED = set(["reddit.com", "minecraft", "adviceanimals", "askreddit",
 IGNORED_USERS = set(["amprobablypooping", "evilrising", "frontpagewatch",
                      "frontpagewatchmirror", "moon-done", "politicbot",
                      "rising_threads_bot", "removal_rover", "know_your_shit",
-                     "drugtaker", "nedsc"])
+                     "drugtaker", "nedsc", "serendipitybot"])
 
 IGNORED_SOURCES = (SKIP_SOURCE | BANNED) - SKIP_LINK
 IGNORED_LINKS = SKIP_LINK - (SKIP_LINK | BANNED)
