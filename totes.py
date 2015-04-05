@@ -1,8 +1,8 @@
 import logging
+import psycopg2 as pg
 import praw
 import os
 import re
-import sqlite3
 import sys
 import time
 import traceback
@@ -13,8 +13,6 @@ from requests.exceptions import ConnectionError, HTTPError
 from praw.errors import APIException, ClientException, RateLimitExceeded
 
 from urllib.parse import urlparse
-
-from settings import IGNORED_BOTH, IGNORED_LINKS, IGNORED_SOURCES, IGNORED_USERS
 
 TEST = True
 DEBUG = True
@@ -32,7 +30,16 @@ logging.basicConfig(level=loglevel,
 log = logging.getLogger('totes')
 logging.getLogger('requests').setLevel(loglevel)
 
-db = sqlite3.connect('totes.sqlite3')
+# Database
+db_url = urlparse(os.environ["DATABASE_URL"])
+
+db = pg.connect(
+    database=db_url.path[1:],
+    user=db_url.username,
+    password=db_url.password,
+    host=db_url.hostname,
+    port=db_url.port
+)
 cur = db.cursor()
 
 r = praw.Reddit(USER_AGENT, domain=DOMAIN)
@@ -46,6 +53,14 @@ def log_error(e):
 def np(url):
     url = urlparse(url)
     return "//np.reddit.com{}".format(url.path)
+
+def source_exists(id):
+    cur.execute("SELECT 1 FROM sources WHERE id=%s LIMIT 1", (id,))
+    return True if cur.fetchone() else False
+
+def link_exists(id):
+    cur.execute("SELECT 1 FROM links WHERE id=%s LIMIT 1", (id,))
+    return True if cur.fetchone() else False
 
 
 class RecoverableException(Exception):
@@ -64,12 +79,12 @@ class NotAComment(RecoverableException):
     pass
 
 
-RECOVERABLE_EXC= (RecoverableException,
-                  ConnectionError,
-                  HTTPError,
-                  APIException,
-                  ClientException,
-                  RateLimitExceeded)
+RECOVERABLE_EXC = (RecoverableException,
+                   ConnectionError,
+                   HTTPError,
+                   APIException,
+                   ClientException,
+                   RateLimitExceeded)
 
 
 class Source:
@@ -108,8 +123,6 @@ class Source:
 
         return self._submission
 
-
-
     @property
     def is_comment(self):
         return self.id.startswith('t1')
@@ -123,7 +136,7 @@ class Source:
             return True
 
         cur.execute(
-            "SELECT * FROM users WHERE name = ? AND skip_source = ? LIMIT 1",
+            "SELECT * FROM users WHERE name = %s AND skip_source = %s LIMIT 1",
             (self.author, True))
 
         if cur.fetchone():
@@ -131,7 +144,7 @@ class Source:
             return True
 
         cur.execute(
-            "SELECT * FROM subreddits WHERE name = ? AND skip_source = ? LIMIT 1",
+            "SELECT * FROM subreddits WHERE name = %s AND skip_source = %s LIMIT 1",
             (self.subreddit, True))
 
         if cur.fetchone():
@@ -141,10 +154,23 @@ class Source:
         return False
 
     def save(self):
-        cur.execute("""
-        REPLACE INTO sources (id, reply, subreddit, author, title, skip)
-        VALUES (?, ?, ?, ?, ?, ?)
-        """, (self.id, self.reply, self.subreddit, self.author, self.title, self.skip))
+        if source_exists(self.id):
+            cur.execute("""
+            UPDATE sources SET
+            reply=%s,
+            subreddit=%s,
+            author=%s,
+            title=%s,
+            skip=%s
+            WHERE id=%s
+            """, (self.reply, self.subreddit, self.author, self.title,
+                  self.skip, self.id))
+        else:
+            cur.execute("""
+            INSERT INTO sources (id, reply, subreddit, author, title, skip)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            """, (self.id, self.reply, self.subreddit, self.author, self.title,
+                  self.skip))
 
         # Maybe commit?
         db.commit()
@@ -155,7 +181,7 @@ class Source:
         """
         cur.execute("""
         SELECT id, reply, subreddit, author, title, skip FROM sources
-        WHERE id=? LIMIT 1
+        WHERE id=%s LIMIT 1
         """, (self.id,))
 
         source = cur.fetchone()
@@ -215,7 +241,7 @@ class Link:
             return True
 
         cur.execute(
-            "SELECT * FROM users WHERE name = ? AND skip_link = ? LIMIT 1",
+            "SELECT * FROM users WHERE name = %s AND skip_link = %s LIMIT 1",
             (self.author, True))
 
         if cur.fetchone():
@@ -223,7 +249,7 @@ class Link:
             return True
 
         cur.execute(
-            "SELECT * FROM subreddits WHERE name = ? AND skip_link = ? LIMIT 1",
+            "SELECT * FROM subreddits WHERE name = %s AND skip_link = %s LIMIT 1",
             (self.subreddit, True))
 
         if cur.fetchone():
@@ -233,10 +259,24 @@ class Link:
         return False
 
     def save(self):
-        cur.execute("""
-        REPLACE INTO links (id, source, permalink, subreddit, skip, author, title)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (self.id, self.source, self.permalink, self.subreddit, self.skip, self.author, self.title))
+        if link_exists(self.id):
+            cur.execute("""
+            UPDATE links SET
+            source=%s,
+            permalink=%s,
+            subreddit=%s,
+            skip=%s,
+            author=%s,
+            title=%s
+            WHERE id=%s
+            """, (self.source, self.permalink, self.subreddit, self.skip,
+                  self.author, self.title, self.id))
+        else:
+            cur.execute("""
+            INSERT INTO links (id, source, permalink, subreddit, skip, author, title)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """, (self.id, self.source, self.permalink, self.subreddit,
+                  self.skip, self.author, self.title))
 
         # Maybe commit less often?
         db.commit()
@@ -248,7 +288,7 @@ class Link:
         """
         cur.execute("""
         SELECT id, source, permalink, subreddit, skip, author, title FROM links
-        WHERE id=? LIMIT 1
+        WHERE id=%s LIMIT 1
         """, (self.id,))
 
         link = cur.fetchone()
@@ -265,13 +305,13 @@ class Notification:
         self.links = []
 
     def should_notify(self):
-        query = cur.execute("""
+        cur.execute("""
         SELECT subreddit, title, permalink FROM links
-        WHERE source=? AND skip=?
+        WHERE source=%s AND skip=%s
         ORDER BY subreddit ASC, title ASC
         """, (self.id, False))
 
-        for row in query:
+        for row in cur:
             self.links.append(row)
 
         return any(self.links)
@@ -354,6 +394,7 @@ class Totes:
                 source.load()
             except RECOVERABLE_EXC as e:
                 log_error(e)
+                db.rollback()
                 continue
 
             log.debug("Got source: {}".format(submission.url))
@@ -366,6 +407,7 @@ class Totes:
                 link.load()
             except RECOVERABLE_EXC as e:
                 log_error(e)
+                db.rollback()
                 continue
 
             log.debug("Got link: {}".format(submission.permalink))
@@ -390,6 +432,7 @@ class Totes:
                     notification.post_reply()
                 except RECOVERABLE_EXC as e:
                     log_error(e)
+                    db.rollback()
                     continue
 
         log.info("Done.")
@@ -398,7 +441,6 @@ class Totes:
         """
         Load settings and perform setup.
         """
-        self._setup_db()
         self._login()
 
         self._setup = True
@@ -417,87 +459,6 @@ class Totes:
         r.login(self.username, self.password)
         log.info("Logged in to reddit.")
 
-    def _setup_db(self):
-        """
-        Create tables.
-        """
-
-        cur.execute("""
-        CREATE TABLE IF NOT EXISTS subreddits (
-            name         TEXT       PRIMARY KEY,
-            skip_source  BOOLEAN    DEFAULT 0,
-            skip_link    BOOLEAN    DEFAULT 0,
-            t            TIMESTAMP  DEFAULT CURRENT_TIMESTAMP
-        )
-        """)
-
-        cur.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            name         TEXT       PRIMARY KEY,
-            skip_source  BOOLEAN    DEFAULT 0,
-            skip_link    BOOLEAN    DEFAULT 0,
-            t            TIMESTAMP  DEFAULT CURRENT_TIMESTAMP
-        )
-        """)
-
-        cur.execute("""
-        CREATE TABLE IF NOT EXISTS sources (
-            id         TEXT       PRIMARY KEY,
-            reply      TEXT       UNIQUE,
-            subreddit  TEXT,
-            author     TEXT,
-            title      TEXT,
-            skip       BOOLEAN    DEFAULT 0,
-            t          TIMESTAMP  DEFAULT CURRENT_TIMESTAMP
-        )
-        """)
-
-        cur.execute("""
-        CREATE TABLE IF NOT EXISTS links (
-            id         TEXT       PRIMARY KEY,
-            source     TEXT,
-            subreddit  TEXT,
-            author     TEXT,
-            title      TEXT,
-            permalink  TEXT,
-            skip       BOOLEAN    DEFAULT 0,
-            t          TIMESTAMP  DEFAULT CURRENT_TIMESTAMP
-        )
-        """)
-
-        cur.execute("""
-        CREATE INDEX IF NOT EXISTS link_sources ON links (source)
-        """)
-
-        db.commit()
-        log.info("Tables ready.")
-
-        for sub in IGNORED_SOURCES:
-            cur.execute("""
-            INSERT OR IGNORE INTO subreddits (name, skip_source)
-            VALUES (?, ?)
-            """, (sub, True))
-
-        for sub in IGNORED_BOTH:
-            cur.execute("""
-            INSERT OR IGNORE INTO subreddits (name, skip_source, skip_link)
-            VALUES (?, ?, ?)
-            """, (sub, True, True))
-
-        for sub in IGNORED_LINKS:
-            cur.execute("""
-            INSERT OR IGNORE INTO subreddits (name, skip_link)
-            VALUES (?, ?)
-            """, (sub, True))
-
-        for user in IGNORED_USERS:
-            cur.execute("""
-            INSERT OR IGNORE INTO users (name, skip_link) VALUES (?, ?)
-            """, (user, True))
-
-        db.commit()
-        log.info("Default settings setup.")
-
 
 if __name__ == "__main__":
     username = os.environ.get("REDDIT_USERNAME")
@@ -514,6 +475,7 @@ if __name__ == "__main__":
                 totes.run()
             except RECOVERABLE_EXC as e:
                 log_error(e)
+                db.rollback()
 
             time.sleep(wait)
     except KeyboardInterrupt:
