@@ -14,7 +14,7 @@ from praw.errors import APIException, ClientException, RateLimitExceeded
 
 from urllib.parse import urlparse
 
-TEST = True
+TEST = False
 DEBUG = False
 
 USER_AGENT = 'TotesMessenger v0.x by /u/justcool393 and /u/cmd-t'
