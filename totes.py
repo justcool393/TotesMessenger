@@ -54,6 +54,9 @@ def np(url):
     url = urlparse(url)
     return "//np.reddit.com{}".format(url.path)
 
+def escape_title(title):
+    return title.replace("*", "\*").replace("[", "\[").replace("]", "\]").replace("^", "\^").replace("`", "\`")
+
 def source_exists(id):
     cur.execute("SELECT 1 FROM sources WHERE id=%s LIMIT 1", (id,))
     return True if cur.fetchone() else False
@@ -352,7 +355,7 @@ Source: {}
         parts.append("This thread has been linked to from another place on reddit.")
 
         for subreddit, title, permalink in self.links:
-            parts.append("- [/r/{}] [{}]({})".format(subreddit, title, np(permalink)))
+            parts.append("- [/r/{}] [{}]({})".format(subreddit, escape_title(title), np(permalink)))
 
         parts.append("""
 [](#footer)*^(If you follow any of the above links, respect the rules of reddit and don't vote.)

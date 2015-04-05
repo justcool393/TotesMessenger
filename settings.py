@@ -1,4 +1,4 @@
-SKIP_SOURCE = set(["anime", "asianamerican", "askhistorians", "askscience",
+SKIP_LINK = set(["anime", "asianamerican", "askhistorians", "askscience",
                    "aww", "benfrick", "bmw", "chicagosuburbs", "cosplay",
                    "cumberbitches", "d3gf", "deer", "depression", "depthhub",
                    "drinkingdollars", "forwardsfromgrandma", "futurology",
@@ -10,7 +10,7 @@ SKIP_SOURCE = set(["anime", "asianamerican", "askhistorians", "askscience",
                    "suicidewatch", "talesfromtechsupport", "unitedkingdom"])
 # Do not edit
 
-SKIP_LINK = set(["depression", "lifeafternarcissists", "managedbynarcissists",
+SKIP_SOURCE = set(["depression", "lifeafternarcissists", "managedbynarcissists",
                  "moderationlog", "raisedbynarcissists", "rbnathome",
                  "rbnbookclub", "rbnchildcare", "rbnfavors", "rbngames",
                  "rbnlifeskills", "rbnmovienight", "rbnrelationships",
