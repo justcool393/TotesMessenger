@@ -15,9 +15,9 @@ from praw.errors import APIException, ClientException, RateLimitExceeded
 from urllib.parse import urlparse
 
 TEST = True
-DEBUG = True
+DEBUG = False
 
-USER_AGENT = 'TotesMessenger v0.x by /u/justcool393'
+USER_AGENT = 'TotesMessenger v0.x by /u/justcool393 and /u/cmd-t'
 DOMAIN = 'api.reddit.com'
 
 ARCHIVE_TIME = 6 * 30 * 24 * 60 * 60  # currently 6 months (in seconds)
