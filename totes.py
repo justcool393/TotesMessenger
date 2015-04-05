@@ -14,8 +14,8 @@ from praw.errors import APIException, ClientException, RateLimitExceeded
 
 from urllib.parse import urlparse
 
-TEST = False
-DEBUG = False
+TEST = os.environ.get("TEST", "false") == "true"
+DEBUG = os.environ.get("DEBUG", "false") == "true"
 
 USER_AGENT = 'TotesMessenger v0.x by /u/justcool393 and /u/cmd-t'
 DOMAIN = 'api.reddit.com'
