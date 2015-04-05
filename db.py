@@ -87,7 +87,13 @@ def user_exists(user):
 
 def populate_db():
     for sub in IGNORED_SOURCES:
-        if not sub_exists(sub):
+        if sub_exists(sub):
+            print("Updating {}".format(sub))
+            cur.execute("""
+            UPDATE subreddits SET skip_source=%s
+            WHERE name=%s
+            """, (True, sub))
+        else:
             print("Inserting {}".format(sub))
             cur.execute("""
             INSERT INTO subreddits (name, skip_source)
@@ -95,7 +101,13 @@ def populate_db():
             """, (sub, True))
 
     for sub in IGNORED_BOTH:
-        if not sub_exists(sub):
+        if sub_exists(sub):
+            print("Updating {}".format(sub))
+            cur.execute("""
+            UPDATE subreddits SET skip_source=%s, skip_link=%s
+            WHERE name=%s
+            """, (True, True, sub))
+        else:
             print("Inserting {}".format(sub))
             cur.execute("""
             INSERT INTO subreddits (name, skip_source, skip_link)
@@ -103,7 +115,13 @@ def populate_db():
             """, (sub, True, True))
 
     for sub in IGNORED_LINKS:
-        if not sub_exists(sub):
+        if sub_exists(sub):
+            print("Updating {}".format(sub))
+            cur.execute("""
+            UPDATE subreddits SET skip_link=%s
+            WHERE name=%s
+            """, (True, sub))
+        else:
             print("Inserting {}".format(sub))
             cur.execute("""
             INSERT INTO subreddits (name, skip_link)
@@ -111,7 +129,13 @@ def populate_db():
             """, (sub, True))
 
     for user in IGNORED_USERS:
-        if not user_exists(user):
+        if user_exists(user):
+            print("Updating {}".format(user))
+            cur.execute("""
+            UPDATE users SET skip_link=%s
+            WHERE name=%s
+            """, (True, user))
+        else:
             print("Inserting {}".format(user))
             cur.execute("""
             INSERT INTO users (name, skip_link) VALUES (%s, %s)
