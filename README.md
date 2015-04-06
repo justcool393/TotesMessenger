@@ -2,13 +2,13 @@ TotesMessenger is a meta post linker bot. When links are made to other submissio
 
 *Remember, follow the rules of reddit and do not vote when going in to linked threads.*
 
-If you have any questions, please [visit the FAQ](/r/TotesMessenger/wiki/FAQ) first.
+If you have any questions, please [visit the FAQ](http://www.reddit.com/r/TotesMessenger/wiki/FAQ) first.
 
 
 
 #More Information
 
-* [Wiki](/r/TotesMessenger/wiki)
+* [Wiki](http://www.reddit.com/r/TotesMessenger/wiki)
 
 * [IRC Chatroom](https://kiwiirc.com/client/irc.snoonet.org/totesmessenger)
 
