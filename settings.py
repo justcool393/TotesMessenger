@@ -33,7 +33,20 @@ BANNED = set(["reddit.com", "minecraft", "adviceanimals", "askreddit",
               "neutralpolitics", "dota2", "wet_shavers", "dogecoin",
               "askphilosophy", "suits", "japanlife", "photography",
               "hiphopheads", "apple", "lifeprotips", "nba", "dbz",
-              "gender_critical", "movies"])
+              "gender_critical", "movies", "food", "korean", "asktrp",
+              "debatereligion", "beerporn", "trueatheism", "badphilosophy",
+              "srswomen", "buildapc", "rddt6", "perfect_timing", "askuk",
+              "gendercritical", "offbeat", "worldoftanks", "conspiracy",
+              "cringpics", "books", "tagpro", "music", "fantasy",
+              "marriedredpill", "gmonews", "citiesskylines",
+              "trollxchromosones", "conservative", "plazaaragon", "modhelp",
+              "jokes", "changetip", "guns", "trackers", "ottawa", "dogtraining",
+              "fatpeoplehate", "netsec", "metal", "teslore",
+              "mechanicalkeyboards", "gifs", "technology", "asatru", "vinyl",
+              "againstthechimpire", "nazihunting", "europe", "paradoxplaza",
+              "china", "ukpolitics", "beertrade", "litecoin", "snowboarding",
+              "explainlikeimfive", "gaming", "interestingasfuck",
+              "adventuretime"])
 
 # Submissions by these users that link to other posts and comments are ignored:
 IGNORED_USERS = set(["amprobablypooping", "evilrising", "frontpagewatch",
