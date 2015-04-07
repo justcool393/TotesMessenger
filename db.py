@@ -3,10 +3,12 @@ import sys
 
 import psycopg2 as pg
 
+from datetime import datetime, timedelta
 from urllib.parse import urlparse
 
 from settings import IGNORED_BOTH, IGNORED_LINKS, IGNORED_SOURCES, IGNORED_USERS
 
+PRUNE_PERIOD = timedelta(2)  # Two days
 
 # Database
 db_url = urlparse(os.environ["DATABASE_URL"])
@@ -144,12 +146,32 @@ def populate_db():
     db.commit()
     print("Default settings setup.")
 
+def prune_db():
+    prune_til = datetime.utcnow() - PRUNE_PERIOD
+
+    cur.execute("""
+    DELETE FROM links
+    WHERE source IN (SELECT id FROM sources WHERE t < %s)
+    """, (prune_til,))
+
+    print("Pruned {} old links.".format(cur.rowcount))
+
+    cur.execute("""
+    DELETE FROM sources WHERE t < %s
+    """, (prune_til,))
+
+    print("Pruned {} old sources.".format(cur.rowcount))
+    db.commit()
+
 if __name__ == '__main__':
     if 'create' in sys.argv:
         create_tables()
 
     if 'populate' in sys.argv:
         populate_db()
+
+    if 'prune' in sys.argv:
+        prune_db()
 
 db.close()
 
