@@ -18,6 +18,7 @@ from urllib.parse import urlparse
 
 TEST = os.environ.get("TEST", "false") == "true"
 DEBUG = os.environ.get("DEBUG", "false") == "true"
+DB_FILE = os.environ.get("DATABASE", "totes.sqlite3")
 
 USER_AGENT = 'TotesMessenger v0.x by /u/justcool393 and /u/cmd-t'
 DOMAIN = 'api.reddit.com'
@@ -70,11 +71,11 @@ def escape_title(title):
         .replace("^", "\^").replace("`", "\`")
 
 def source_exists(id):
-    cur.execute("SELECT 1 FROM sources WHERE id=%s LIMIT 1", (id,))
+    cur.execute("SELECT 1 FROM sources WHERE id=? LIMIT 1", (id,))
     return True if cur.fetchone() else False
 
 def link_exists(id):
-    cur.execute("SELECT 1 FROM links WHERE id=%s LIMIT 1", (id,))
+    cur.execute("SELECT 1 FROM links WHERE id=? LIMIT 1", (id,))
     return True if cur.fetchone() else False
 
 
@@ -151,7 +152,7 @@ class Source:
             return True
 
         cur.execute(
-            "SELECT * FROM users WHERE name = %s AND skip_source = %s LIMIT 1",
+            "SELECT * FROM users WHERE name = ? AND skip_source = ? LIMIT 1",
             (self.author, True))
 
         if cur.fetchone():
@@ -159,7 +160,7 @@ class Source:
             return True
 
         cur.execute(
-            "SELECT * FROM subreddits WHERE name = %s AND skip_source = %s LIMIT 1",
+            "SELECT * FROM subreddits WHERE name = ? AND skip_source = ? LIMIT 1",
             (self.subreddit, True))
 
         if cur.fetchone():
@@ -172,18 +173,18 @@ class Source:
         if source_exists(self.id):
             cur.execute("""
             UPDATE sources SET
-            reply=%s,
-            subreddit=%s,
-            author=%s,
-            title=%s,
-            skip=%s
-            WHERE id=%s
+            reply=?,
+            subreddit=?,
+            author=?,
+            title=?,
+            skip=?
+            WHERE id=?
             """, (self.reply, self.subreddit, self.author, self.title,
                   self.skip, self.id))
         else:
             cur.execute("""
             INSERT INTO sources (id, reply, subreddit, author, title, skip)
-            VALUES (%s, %s, %s, %s, %s, %s)
+            VALUES (?, ?, ?, ?, ?, ?)
             """, (self.id, self.reply, self.subreddit, self.author, self.title,
                   self.skip))
 
@@ -196,7 +197,7 @@ class Source:
         """
         cur.execute("""
         SELECT id, reply, subreddit, author, title, skip FROM sources
-        WHERE id=%s LIMIT 1
+        WHERE id=? LIMIT 1
         """, (self.id,))
 
         source = cur.fetchone()
@@ -256,7 +257,7 @@ class Link:
             return True
 
         cur.execute(
-            "SELECT * FROM users WHERE name = %s AND skip_link = %s LIMIT 1",
+            "SELECT * FROM users WHERE name = ? AND skip_link = ? LIMIT 1",
             (self.author, True))
 
         if cur.fetchone():
@@ -264,7 +265,7 @@ class Link:
             return True
 
         cur.execute(
-            "SELECT * FROM subreddits WHERE name = %s AND skip_link = %s LIMIT 1",
+            "SELECT * FROM subreddits WHERE name = ? AND skip_link = ? LIMIT 1",
             (self.subreddit, True))
 
         if cur.fetchone():
@@ -277,19 +278,19 @@ class Link:
         if link_exists(self.id):
             cur.execute("""
             UPDATE links SET
-            source=%s,
-            permalink=%s,
-            subreddit=%s,
-            skip=%s,
-            author=%s,
-            title=%s
-            WHERE id=%s
+            source=?,
+            permalink=?,
+            subreddit=?,
+            skip=?,
+            author=?,
+            title=?
+            WHERE id=?
             """, (self.source, self.permalink, self.subreddit, self.skip,
                   self.author, self.title, self.id))
         else:
             cur.execute("""
             INSERT INTO links (id, source, permalink, subreddit, skip, author, title)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             """, (self.id, self.source, self.permalink, self.subreddit,
                   self.skip, self.author, self.title))
 
@@ -303,7 +304,7 @@ class Link:
         """
         cur.execute("""
         SELECT id, source, permalink, subreddit, skip, author, title FROM links
-        WHERE id=%s LIMIT 1
+        WHERE id=? LIMIT 1
         """, (self.id,))
 
         link = cur.fetchone()
@@ -320,13 +321,13 @@ class Notification:
         self.links = []
 
     def should_notify(self):
-        cur.execute("""
+        query = cur.execute("""
         SELECT subreddit, title, permalink FROM links
-        WHERE source=%s AND skip=%s
+        WHERE source=? AND skip=?
         ORDER BY subreddit ASC, title ASC
         """, (self.id, False))
 
-        for row in cur:
+        for row in query:
             self.links.append(row)
 
         return any(self.links)
@@ -504,12 +505,12 @@ class FTPSaver:
         session.retrbinary("RETR " + self.file, open(self.file, 'wb').write)
         session.quit()
 
-u = FTPSaver("totes.sqlite3", "htdocs", os.environ['FTP_SRV'],
-             os.environ['FTP_USR'], os.environ['FTP_PASS'])
+u = FTPSaver(DB_FILE, "htdocs", os.environ.get('FTP_SRV'),
+             os.environ.get('FTP_USR'), os.environ.get('FTP_PASS'))
 
 u.download() # Download from FTP
 
-db = sqlite3.connect("totes.sqlite3")
+db = sqlite3.connect(DB_FILE)
 cur = db.cursor()
 
 if __name__ == "__main__":
