@@ -9,7 +9,8 @@ SKIP_LINK = set(["depression", "lifeafternarcissists", "managedbynarcissists",
                    "risingthreads", "uncensorship", "leagueofriot",
                    "benlargefanclub", "fitnesscirclejerk", "taiwancirclejerk",
                    "requestedtweaks", "jaxbrew", "floridabrew", "aggregat0r",
-                   "gamecollectingjerk", "technews2015", "serendipity"])
+                   "gamecollectingjerk", "technews2015", "serendipity",
+                   "removalseuropean"])
 
 # Posts and comments (sources) in these subs that are linked to from elsewhere
 # on reddit are ignored:
@@ -55,6 +56,6 @@ IGNORED_USERS = set(["amprobablypooping", "evilrising", "frontpagewatch",
                      "drugtaker", "nedsc", "serendipitybot"])
 
 IGNORED_SOURCES = (SKIP_SOURCE | BANNED) - SKIP_LINK
-IGNORED_LINKS = SKIP_LINK - (SKIP_LINK | BANNED)
+IGNORED_LINKS = SKIP_LINK - (SKIP_SOURCE | BANNED)
 IGNORED_BOTH = (SKIP_SOURCE | BANNED) & SKIP_LINK
 

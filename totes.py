@@ -1,9 +1,10 @@
 import logging
-import psycopg2 as pg
+#import psycopg2 as pg
 import praw
 import os
 import re
 import sys
+import sqlite3
 import time
 import traceback
 
@@ -31,15 +32,22 @@ log = logging.getLogger('totes')
 logging.getLogger('requests').setLevel(loglevel)
 
 # Database
-db_url = urlparse(os.environ["DATABASE_URL"])
+#db_url = urlparse(os.environ["DATABASE_URL"])
 
-db = pg.connect(
-    database=db_url.path[1:],
-    user=db_url.username,
-    password=db_url.password,
-    host=db_url.hostname,
-    port=db_url.port
-)
+#db = pg.connect(
+#    database=db_url.path[1:],
+#    user=db_url.username,
+#    password=db_url.password,
+#    host=db_url.hostname,
+#    port=db_url.port
+#)
+
+u = FTPSaver("totes.sqlite3", "htdocs", os.environ['FTP_SRV'],
+             os.environ['FTP_USR'], os.environ['FTP_PASS'])
+
+u.download() # Download from FTP
+
+db = sqlite3.connect("totes.sqlite3")
 cur = db.cursor()
 
 r = praw.Reddit(USER_AGENT, domain=DOMAIN)
@@ -464,6 +472,35 @@ class Totes:
         log.info("Logged in to reddit.")
 
 
+class FTPSaver:
+
+    def __init__(self, file, folder, server, user, password):
+        self.file = file
+        self.folder = folder
+        self.server = server
+        self.user = user
+        self.password = password
+
+
+    def create_session(self):
+        session = ftplib.FTP(self.server, self.user, self.password)
+        session.cwd(self.folder)
+        return session
+
+
+    def upload(self):
+        session = self.create_session()
+        f = open(file, 'rb')
+        session.storbinary("STOR " + self.file, f)
+        f.close()
+        session.quit()
+
+
+    def download(self):
+        session = self.create_session()
+        session.retrbinary("RETR " + self.file, open(file, 'wb').write)
+        session.quit()
+
 if __name__ == "__main__":
     username = os.environ.get("REDDIT_USERNAME")
     password = os.environ.get("REDDIT_PASSWORD")
@@ -482,6 +519,7 @@ if __name__ == "__main__":
                 db.rollback()
 
             time.sleep(wait)
+            u.upload()
     except KeyboardInterrupt:
         pass
 
