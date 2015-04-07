@@ -520,11 +520,13 @@ if __name__ == "__main__":
     password = os.environ.get("REDDIT_PASSWORD")
     wait = int(os.environ.get("WAIT", 30))
     limit = int(os.environ.get("LIMIT", 25))
+    save_cycle = int(os.environ.get("SAVE_CYCLE", 20))
 
     totes = Totes(username, password, limit)
     totes.setup()
 
     try:
+        cycles = 0
         while True:
             try:
                 totes.run()
@@ -533,7 +535,9 @@ if __name__ == "__main__":
                 db.rollback()
 
             time.sleep(wait)
-            u.upload()
+            if cycles >= save_cycle:
+                u.upload()
+                cycles = 0
     except KeyboardInterrupt:
         pass
 
