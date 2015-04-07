@@ -477,23 +477,23 @@ class Totes:
 
 class FTPSaver:
 
-    def __init__(self, file, folder, server, user, password):
+    def __init__(self, file, folder, server, user, ftppass):
         self.file = file
         self.folder = folder
         self.server = server
         self.user = user
-        self.password = password
+        self.ftppass = ftppass
 
 
     def create_session(self):
-        session = ftplib.FTP(self.server, self.user, self.password)
+        session = ftplib.FTP(self.server, self.user, self.ftppass)
         session.cwd(self.folder)
         return session
 
 
     def upload(self):
         session = self.create_session()
-        f = open(file, 'rb')
+        f = open(self.file, 'rb')
         session.storbinary("STOR " + self.file, f)
         f.close()
         session.quit()
@@ -501,7 +501,7 @@ class FTPSaver:
 
     def download(self):
         session = self.create_session()
-        session.retrbinary("RETR " + self.file, open(file, 'wb').write)
+        session.retrbinary("RETR " + self.file, open(self.file, 'wb').write)
         session.quit()
 
 u = FTPSaver("totes.sqlite3", "htdocs", os.environ['FTP_SRV'],
