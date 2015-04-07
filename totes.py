@@ -42,13 +42,15 @@ logging.getLogger('requests').setLevel(loglevel)
 #    port=db_url.port
 #)
 
-u = FTPSaver("totes.sqlite3", "htdocs", os.environ['FTP_SRV'],
-             os.environ['FTP_USR'], os.environ['FTP_PASS'])
+# Moved temporarily
 
-u.download() # Download from FTP
-
-db = sqlite3.connect("totes.sqlite3")
-cur = db.cursor()
+#u = FTPSaver("totes.sqlite3", "htdocs", os.environ['FTP_SRV'],
+#             os.environ['FTP_USR'], os.environ['FTP_PASS'])
+#
+#u.download() # Download from FTP
+#
+#db = sqlite3.connect("totes.sqlite3")
+#cur = db.cursor()
 
 r = praw.Reddit(USER_AGENT, domain=DOMAIN)
 
@@ -501,7 +503,17 @@ class FTPSaver:
         session.retrbinary("RETR " + self.file, open(file, 'wb').write)
         session.quit()
 
+u = FTPSaver("totes.sqlite3", "htdocs", os.environ['FTP_SRV'],
+             os.environ['FTP_USR'], os.environ['FTP_PASS'])
+
+u.download() # Download from FTP
+
+db = sqlite3.connect("totes.sqlite3")
+cur = db.cursor()
+
 if __name__ == "__main__":
+
+
     username = os.environ.get("REDDIT_USERNAME")
     password = os.environ.get("REDDIT_PASSWORD")
     wait = int(os.environ.get("WAIT", 30))
