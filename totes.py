@@ -535,6 +535,7 @@ if __name__ == "__main__":
                 db.rollback()
 
             time.sleep(wait)
+            cycles += 1
             if cycles >= save_cycle:
                 u.upload()
                 cycles = 0
