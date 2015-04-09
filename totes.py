@@ -1,4 +1,3 @@
-import datetime
 import ftplib
 import logging
 #import psycopg2 as pg
@@ -16,6 +15,7 @@ from requests.exceptions import ConnectionError, HTTPError
 from praw.errors import APIException, ClientException, RateLimitExceeded
 
 from urllib.parse import urlparse
+from datetime import datetime, timezone
 
 TEST = os.environ.get("TEST", "false") == "true"
 DEBUG = os.environ.get("DEBUG", "false") == "true"
@@ -388,7 +388,9 @@ class Totes:
         submissions = r.get_domain_listing('reddit.com', sort='new', limit=self.limit)
 
         for submission in submissions:
-            if datetime.datetime.utcnow().timestamp() - submission.created_utc < POST_TIME:
+            now = datetime.now(timezone.utc).timestamp()
+
+            if  now - submission.created_utc < POST_TIME:
                 continue # skip if our post is less than POST_TIME (2 min) old
 
             try:
