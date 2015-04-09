@@ -24,6 +24,7 @@ USER_AGENT = 'TotesMessenger v0.x by /u/justcool393 and /u/cmd-t'
 DOMAIN = 'api.reddit.com'
 
 ARCHIVE_TIME = 6 * 30 * 24 * 60 * 60  # currently 6 months (in seconds)
+POST_TIME = 2 * 60 # how long to wait until we should post (2 minutes in secs.)
 
 loglevel = logging.DEBUG if DEBUG else logging.INFO
 
@@ -386,6 +387,9 @@ class Totes:
         submissions = r.get_domain_listing('reddit.com', sort='new', limit=self.limit)
 
         for submission in submissions:
+            if datetime.datetime.utcnow().timestamp() - submission.created_utc < POST_TIME:
+                continue # skip if our post is less than POST_TIME (2 min) old
+
             try:
                 source = Source(submission.url)
                 source.load()
