@@ -33,26 +33,9 @@ logging.basicConfig(level=loglevel,
 log = logging.getLogger('totes')
 logging.getLogger('requests').setLevel(loglevel)
 
-# Database
-#db_url = urlparse(os.environ["DATABASE_URL"])
 
-#db = pg.connect(
-#    database=db_url.path[1:],
-#    user=db_url.username,
-#    password=db_url.password,
-#    host=db_url.hostname,
-#    port=db_url.port
-#)
-
-# Moved temporarily
-
-#u = FTPSaver("totes.sqlite3", "htdocs", os.environ['FTP_SRV'],
-#             os.environ['FTP_USR'], os.environ['FTP_PASS'])
-#
-#u.download() # Download from FTP
-#
-#db = sqlite3.connect("totes.sqlite3")
-#cur = db.cursor()
+db = sqlite3.connect("totes.sqlite3")
+cur = db.cursor()
 
 r = praw.Reddit(USER_AGENT, domain=DOMAIN)
 
@@ -475,44 +458,6 @@ class Totes:
         r.login(self.username, self.password)
         log.info("Logged in to reddit.")
 
-
-class FTPSaver:
-
-    def __init__(self, file, folder, server, user, ftppass):
-        self.file = file
-        self.folder = folder
-        self.server = server
-        self.user = user
-        self.ftppass = ftppass
-
-
-    def create_session(self):
-        session = ftplib.FTP(self.server, self.user, self.ftppass)
-        session.cwd(self.folder)
-        return session
-
-
-    def upload(self):
-        session = self.create_session()
-        f = open(self.file, 'rb')
-        session.storbinary("STOR " + self.file, f)
-        f.close()
-        session.quit()
-
-
-    def download(self):
-        session = self.create_session()
-        session.retrbinary("RETR " + self.file, open(self.file, 'wb').write)
-        session.quit()
-
-u = FTPSaver(DB_FILE, "htdocs", os.environ.get('FTP_SRV'),
-             os.environ.get('FTP_USR'), os.environ.get('FTP_PASS'))
-
-u.download() # Download from FTP
-
-db = sqlite3.connect(DB_FILE)
-cur = db.cursor()
-
 if __name__ == "__main__":
 
 
@@ -520,25 +465,18 @@ if __name__ == "__main__":
     password = os.environ.get("REDDIT_PASSWORD")
     wait = int(os.environ.get("WAIT", 30))
     limit = int(os.environ.get("LIMIT", 25))
-    save_cycle = int(os.environ.get("SAVE_CYCLE", 20))
 
     totes = Totes(username, password, limit)
     totes.setup()
 
     try:
-        cycles = 0
         while True:
             try:
                 totes.run()
             except RECOVERABLE_EXC as e:
                 log_error(e)
                 db.rollback()
-
             time.sleep(wait)
-            cycles += 1
-            if cycles >= save_cycle:
-                u.upload()
-                cycles = 0
     except KeyboardInterrupt:
         pass
 
