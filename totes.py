@@ -1,6 +1,5 @@
 import ftplib
 import logging
-#import psycopg2 as pg
 import praw
 import os
 import re
@@ -25,7 +24,7 @@ USER_AGENT = 'TotesMessenger v0.x by /u/justcool393 and /u/cmd-t'
 DOMAIN = 'api.reddit.com'
 
 ARCHIVE_TIME = 6 * 30 * 24 * 60 * 60  # currently 6 months (in seconds)
-POST_TIME = 2 * 60 # how long to wait until we should post (2 minutes in secs.)
+POST_TIME = 2 * 60  # how long to wait until we should post (2 minutes in secs.)
 
 loglevel = logging.DEBUG if DEBUG else logging.INFO
 
@@ -390,14 +389,17 @@ class Totes:
         for submission in submissions:
             now = datetime.now(timezone.utc).timestamp()
 
-            if  now - submission.created_utc < POST_TIME:
-                continue # skip if our post is less than POST_TIME (2 min) old
+            if now - submission.created_utc < POST_TIME:
+                continue  # skip if our post is less than POST_TIME (2 min) old
 
             try:
                 source = Source(submission.url)
                 source.load()
             except RECOVERABLE_EXC as e:
-                log_error(e)
+                if DEBUG:  # give a stacktrace only if debugging
+                    log_error(e)
+                else:
+                    log.error(str(e))
                 db.rollback()
                 log.debug("Something wrong with source: {}".format(submission.url))
                 continue
@@ -466,7 +468,6 @@ class Totes:
         log.info("Logged in to reddit.")
 
 if __name__ == "__main__":
-
 
     username = os.environ.get("REDDIT_USERNAME")
     password = os.environ.get("REDDIT_PASSWORD")
