@@ -13,6 +13,9 @@ from requests.exceptions import ConnectionError, HTTPError
 # Praw's exceptions live in .errors and are called exceptions.
 from praw.errors import APIException, ClientException, RateLimitExceeded
 
+# Internationalization stuff
+from i18n import TranslationException, Translation, I18n
+
 from urllib.parse import urlparse
 from datetime import datetime, timezone
 
@@ -39,6 +42,8 @@ db = sqlite3.connect("totes.sqlite3")
 cur = db.cursor()
 
 r = praw.Reddit(USER_AGENT, domain=DOMAIN)
+
+i18n = I18n()
 
 PATH_REGEX = re.compile(r'^/r/([^/]+)/comments/([a-z0-9]{6,8})(/[^/]+/([a-z0-9]{6,8}))?')
 
@@ -304,6 +309,15 @@ class Notification:
         self.reply = source.reply
         self.links = []
 
+    def set_language(self):
+        query = cur.execute(
+            "SELECT language FROM subreddits WHERE name = ?",
+            (self.source.submission.subreddit.display_name.lower(),))
+        lang = query.fetchone()
+        if lang is None:
+            lang = ["en"]
+        i18n.setlang(lang[0])
+
     def should_notify(self):
         query = cur.execute("""
         SELECT subreddit, title, permalink FROM links
@@ -348,17 +362,25 @@ Source: {}
         return True
 
     def _render_comment(self):
+        self.set_language()
         parts = []
-        parts.append("This thread has been linked to from another place on reddit.")
+
+        parts.append(i18n.get("linkingnotification"))
+        #parts.append("This thread has been linked to from another place on
+        # reddit.")
 
         for subreddit, title, permalink in self.links:
             parts.append("- [/r/{}] [{}]({})".format(subreddit, escape_title(title), np(permalink)))
 
+        parts.append("[](#footer)*^(" + i18n.get("votingwarning") + ") " +
+                     i18n.get("infolink") + "*")
+        parts.append("[](#bot)")
+        '''
         parts.append("""
 [](#footer)*^(If you follow any of the above links, respect the rules of reddit and don't vote.)
 ^\([Info](/r/TotesMessenger/wiki/) ^/ ^[Contact](/message/compose/?to=\/r\/TotesMessenger))* [](#bot)
         """)
-
+        '''
         return "\n\n".join(parts)
 
 

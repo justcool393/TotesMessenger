@@ -11,4 +11,5 @@ totes.sqlite3
 /share
 /lib
 /__pycache__
+/i18n
 settings.pyc
