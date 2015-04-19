@@ -1,25 +1,13 @@
 import os
 import sys
-
-import psycopg2 as pg
+import sqlite3
 
 from urllib.parse import urlparse
 
 from settings import IGNORED_BOTH, IGNORED_LINKS, IGNORED_SOURCES, IGNORED_USERS
 
 
-# Database
-db_url = urlparse(os.environ["DATABASE_URL"])
-
-db = pg.connect(
-    database=db_url.path[1:],
-    user=db_url.username,
-    password=db_url.password,
-    host=db_url.hostname,
-    port=db_url.port
-)
-
-#db = sqlite3.connect('totes.sqlite3')
+db = sqlite3.connect('totes.sqlite3')
 cur = db.cursor()
 
 def create_tables():
@@ -32,6 +20,7 @@ def create_tables():
         name         TEXT  PRIMARY KEY,
         skip_source  BOOLEAN      DEFAULT FALSE,
         skip_link    BOOLEAN      DEFAULT FALSE,
+        language     TEXT         DEFAULT 'en',
         t            TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
     )
     """)
@@ -78,11 +67,11 @@ def create_tables():
     print("Tables ready.")
 
 def sub_exists(sub):
-    cur.execute("SELECT 1 FROM subreddits WHERE name=%s LIMIT 1", (sub,))
+    cur.execute("SELECT 1 FROM subreddits WHERE name=? LIMIT 1", (sub,))
     return True if cur.fetchone() else False
 
 def user_exists(user):
-    cur.execute("SELECT 1 FROM users WHERE name=%s LIMIT 1", (user,))
+    cur.execute("SELECT 1 FROM users WHERE name=? LIMIT 1", (user,))
     return True if cur.fetchone() else False
 
 def populate_db():
