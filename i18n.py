@@ -1,4 +1,6 @@
+import codecs
 import os
+
 from os import path
 
 I18N_PATH = "i18n"
@@ -44,7 +46,8 @@ class Translation:
         self.alltext = self.read_from_file(path)
 
     def read_from_file(self, path):
-        file = open(path + "/" + self.code + ".i18n")
+        file = codecs.open(path + "/" + self.code + ".i18n", 'r',
+                           encoding='utf8')
         data = dict(line.split(":", 1) for line in file)
         file.close()
         return data
