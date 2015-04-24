@@ -14,7 +14,7 @@ from requests.exceptions import ConnectionError, HTTPError
 from praw.errors import APIException, ClientException, RateLimitExceeded
 
 # Internationalization stuff
-from i18n import TranslationException, Translation, I18n
+from i18n import TranslationException, Translation, I18n, DEFAULT_LANG
 
 from urllib.parse import urlparse
 from datetime import datetime, timezone
@@ -312,11 +312,15 @@ class Notification:
     def set_language(self):
         query = cur.execute(
             "SELECT language FROM subreddits WHERE name = ?",
-            (self.source.submission.subreddit.display_name.lower(),))
+            (self.source.subreddit,))
         lang = query.fetchone()
         if lang is None:
-            lang = ["en"]
-        i18n.setlang(lang[0])
+            lang = [DEFAULT_LANG]
+
+        try:
+            i18n.setlang(lang[0])
+        except TranslationException:
+            i18n.setlang(DEFAULT_LANG)
 
     def should_notify(self):
         query = cur.execute("""
@@ -372,15 +376,9 @@ Source: {}
         for subreddit, title, permalink in self.links:
             parts.append("- [/r/{}] [{}]({})".format(subreddit, escape_title(title), np(permalink)))
 
-        parts.append("[](#footer)*^(" + i18n.get("votingwarning") + ") " +
-                     i18n.get("infolink") + "*")
+        parts.append("[](#footer)*^({}) {}*".format(i18n.get("votingwarning").strip(), i18n.get("infolink").strip()))
         parts.append("[](#bot)")
-        '''
-        parts.append("""
-[](#footer)*^(If you follow any of the above links, respect the rules of reddit and don't vote.)
-^\([Info](/r/TotesMessenger/wiki/) ^/ ^[Contact](/message/compose/?to=\/r\/TotesMessenger))* [](#bot)
-        """)
-        '''
+
         return "\n\n".join(parts)
 
 

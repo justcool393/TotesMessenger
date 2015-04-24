@@ -4,6 +4,7 @@ import os
 from os import path
 
 I18N_PATH = "i18n"
+DEFAULT_LANG = "en"
 
 
 class I18n:
@@ -12,7 +13,7 @@ class I18n:
             path = I18N_PATH
 
         if langcode is None:
-            langcode = "en"
+            langcode = DEFAULT_LANG
         self.translations = {}
         import os
         for file in os.listdir(I18N_PATH):
