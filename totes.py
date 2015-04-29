@@ -53,7 +53,7 @@ def log_error(e):
 
 def np(url):
     url = urlparse(url)
-    return "//np.reddit.com{}".format(url.path)
+    return "https://np.reddit.com{}".format(url.path)
 
 def escape_title(title):
     return title.replace("*", "\*").replace("[", "\[").replace("]", "\]")\
