@@ -221,7 +221,7 @@ class Source:
         else:
             id = "t3_{}".format(post)
 
-        return (id, subreddit)
+        return id, subreddit
 
 
 class Link:
@@ -229,16 +229,17 @@ class Link:
         self.submission = submission
         self.id = submission.name
         self.subreddit = submission.subreddit.display_name.lower()
+        self.skip = False
 
         if submission.author:
             self.author = submission.author.name.lower()
         else:
             self.author = '[deleted]'
+            self.skip = True
 
         self.title = submission.title
         self.permalink = submission.permalink
         self.source = source
-        self.skip = False
         self.is_new = True
 
     def check_skip(self):
