@@ -57,7 +57,7 @@ class Translation:
         if text not in self.alltext:
             raise StringNotFoundException(text, self)
 
-        return self.alltext[text].replace("\n", "").replace("\r", "")
+        return self.alltext[text].replace("\n", "").replace("\r", "").strip()
 
 
 class TranslationException(Exception):

@@ -28,6 +28,8 @@ DOMAIN = 'api.reddit.com'
 
 ARCHIVE_TIME = 6 * 30 * 24 * 60 * 60  # currently 6 months (in seconds)
 POST_TIME = 2 * 60  # how long to wait until we should post (2 minutes in secs.)
+LINKS_BEFORE_TITLE_CUTOFF = 40
+TITLE_LIMIT = 140 - 3  # title character limit - 1 (for ellipsis)
 
 loglevel = logging.DEBUG if DEBUG else logging.INFO
 
@@ -56,8 +58,10 @@ def np(url):
     return "https://np.reddit.com{}".format(url.path)
 
 def escape_title(title):
-    return title.replace("*", "\*").replace("[", "\[").replace("]", "\]")\
-        .replace("^", "\^").replace("`", "\`")
+    escaped = "*[]^`_~"
+    for s in escaped:
+        title = title.replace(s, "\\" + s)
+    return title
 
 def source_exists(id):
     cur.execute("SELECT 1 FROM sources WHERE id=? LIMIT 1", (id,))
@@ -300,8 +304,9 @@ class Link:
         link = cur.fetchone()
 
         if link:
-           self.id, self.source, self.permalink, self.subreddit, self.skip, self.author, self.title = link
-           self.is_new = False
+            self.id, self.source, self.permalink, self.subreddit, self.skip, self.author, self.title = link
+            self.is_new = False
+
 
 class Notification:
     def __init__(self, source):
@@ -371,13 +376,18 @@ Source: {}
         parts = []
 
         parts.append(i18n.get("linkingnotification"))
-        #parts.append("This thread has been linked to from another place on
-        # reddit.")
+
+        cutoff_title = len(self.links) > LINKS_BEFORE_TITLE_CUTOFF
 
         for subreddit, title, permalink in self.links:
-            parts.append("- [/r/{}] [{}]({})".format(subreddit, escape_title(title), np(permalink)))
+            if cutoff_title and len(title) > TITLE_LIMIT:
+                title = title[:TITLE_LIMIT] + "..."
+            parts.append("- [/r/{}] [{}]({})".format(subreddit,
+                                                     escape_title(title),
+                                                     np(permalink)))
 
-        parts.append("[](#footer)*^({}) {}*".format(i18n.get("votingwarning").strip(), i18n.get("infolink").strip()))
+        parts.append("[](#footer)*^({}) {}*".format(i18n.get("votingwarning"),
+                                                    i18n.get("infolink")))
         parts.append("[](#bot)")
 
         return "\n\n".join(parts)
