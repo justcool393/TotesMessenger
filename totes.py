@@ -19,17 +19,11 @@ from i18n import TranslationException, Translation, I18n, DEFAULT_LANG
 from urllib.parse import urlparse
 from datetime import datetime, timezone
 
-TEST = os.environ.get("TEST", "false") == "true"
-DEBUG = os.environ.get("DEBUG", "false") == "true"
-DB_FILE = os.environ.get("DATABASE", "totes.sqlite3")
+# Settings
+from settings import *
 
-USER_AGENT = 'TotesMessenger v0.x by /u/justcool393 and /u/cmd-t'
+USER_AGENT = 'TotesMessenger v0.5 by /u/justcool393 and /u/cmd-t'
 DOMAIN = 'api.reddit.com'
-
-ARCHIVE_TIME = 6 * 30 * 24 * 60 * 60  # currently 6 months (in seconds)
-POST_TIME = 2 * 60  # how long to wait until we should post (2 minutes in secs.)
-LINKS_BEFORE_TITLE_CUTOFF = 40
-TITLE_LIMIT = 140 - 3  # title character limit - 1 (for ellipsis)
 
 loglevel = logging.DEBUG if DEBUG else logging.INFO
 
@@ -49,23 +43,41 @@ i18n = I18n()
 
 PATH_REGEX = re.compile(r'^/r/([^/]+)/comments/([a-z0-9]{6,8})(/[^/]+/([a-z0-9]{6,8}))?')
 
+
 def log_error(e):
     log.error("Unexpected {}:\n{}".format(e.__class__.__name__,
                                           traceback.format_exc()))
 
+
 def np(url):
+    """
+    Transforms a reddit link into a no participation URL (which in some
+    subreddits hides voting arrows, to help prevent administrator shadowbans.
+    :param url: URL to transform
+    :return: A no participation (NP) link
+    """
     url = urlparse(url)
     return "https://np.reddit.com{}".format(url.path)
 
+
 def escape_title(title):
+    """
+    Escapes special characters in titles. Markdown uses some characters like
+    * and _ for things such as links to make sure people can't bold titles
+    and such.
+    :param title: Title to escape
+    :return: A escaped title
+    """
     escaped = "*[]^`_~"
     for s in escaped:
         title = title.replace(s, "\\" + s)
     return title
 
+
 def source_exists(id):
     cur.execute("SELECT 1 FROM sources WHERE id=? LIMIT 1", (id,))
     return True if cur.fetchone() else False
+
 
 def link_exists(id):
     cur.execute("SELECT 1 FROM links WHERE id=? LIMIT 1", (id,))
@@ -229,6 +241,9 @@ class Source:
 
 
 class Link:
+    """
+    Thread that links to another place on reddit
+    """
     def __init__(self, submission, source):
         self.submission = submission
         self.id = submission.name
@@ -290,7 +305,6 @@ class Link:
 
         # Maybe commit less often?
         db.commit()
-
 
     def load(self):
         """
@@ -373,6 +387,10 @@ Source: {}
 
     def _render_comment(self):
         self.set_language()
+
+        footer_links = i18n.get("infolink").format(info=INFO_LINK,
+                                                   contact=CONTACT_LINK,
+                                                   translation=TRANSLATION_ERROR_LINK)
         parts = []
 
         parts.append(i18n.get("linkingnotification"))
@@ -387,7 +405,7 @@ Source: {}
                                                      np(permalink)))
 
         parts.append("[](#footer)*^({}) {}*".format(i18n.get("votingwarning"),
-                                                    i18n.get("infolink")))
+                                                    footer_links))
         parts.append("[](#bot)")
 
         return "\n\n".join(parts)
@@ -415,7 +433,8 @@ class Totes:
 
         sources = set()
 
-        submissions = r.get_domain_listing('reddit.com', sort='new', limit=self.limit)
+        submissions = r.get_domain_listing('reddit.com', sort='new',
+                                           limit=self.limit)
 
         for submission in submissions:
             now = datetime.now(timezone.utc).timestamp()
@@ -432,7 +451,7 @@ class Totes:
                 else:
                     log.error(str(e))
                 db.rollback()
-                log.debug("Something wrong with source: {}".format(submission.url))
+                log.debug("Something wrong with source: {}".format(submission.permalink))
                 continue
 
             log.debug("Got source: {}".format(submission.url))
@@ -502,10 +521,8 @@ if __name__ == "__main__":
 
     username = os.environ.get("REDDIT_USERNAME")
     password = os.environ.get("REDDIT_PASSWORD")
-    wait = int(os.environ.get("WAIT", 30))
-    limit = int(os.environ.get("LIMIT", 25))
 
-    totes = Totes(username, password, limit)
+    totes = Totes(username, password, LIMIT)
     totes.setup()
 
     try:
@@ -515,7 +532,7 @@ if __name__ == "__main__":
             except RECOVERABLE_EXC as e:
                 log_error(e)
                 db.rollback()
-            time.sleep(wait)
+            time.sleep(WAIT)
     except KeyboardInterrupt:
         pass
 
