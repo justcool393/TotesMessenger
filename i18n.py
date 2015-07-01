@@ -45,6 +45,7 @@ class Translation:
         self.code = code
         self.file = file
         self.alltext = self.read_from_file(path)
+        self.name = self.get("language")
 
     def read_from_file(self, path):
         file = codecs.open(path + "/" + self.code + ".i18n", 'r',

@@ -68,7 +68,7 @@ def escape_title(title):
     :param title: Title to escape
     :return: A escaped title
     """
-    escaped = "*[]^`_~"
+    escaped = "*[]^`_~\\"
     for s in escaped:
         title = title.replace(s, "\\" + s)
     return title
@@ -230,7 +230,7 @@ class Source:
         if match:
             subreddit, post, _, comment = match.groups()
         else:
-            raise NotAComment("The source {} is not a comment or post.".format(self.path))
+            raise NotAComment("Source {} is not a comment or post.".format(self.path))
 
         if comment:
             id = "t1_{}".format(comment)
@@ -247,6 +247,8 @@ class Link:
     def __init__(self, submission, source):
         self.submission = submission
         self.id = submission.name
+        # self.subreddit = submission.subreddit.display_name
+        # TODO: Change to subreddit.display_name
         self.subreddit = submission.subreddit.display_name.lower()
         self.skip = False
 
@@ -254,7 +256,7 @@ class Link:
             self.author = submission.author.name.lower()
         else:
             self.author = '[deleted]'
-            self.skip = True
+            self.skip = True  # skip the link if the user has deleted it
 
         self.title = submission.title
         self.permalink = submission.permalink
@@ -262,6 +264,17 @@ class Link:
         self.is_new = True
 
     def check_skip(self):
+        """
+        Checks whether we should skip this link. This uses an all-lowercase
+        version of the subreddit name, which is different than what is used
+        in the post (the mixed case name). For example, in the database,
+        the name would be "TotesMessenger", but the subreddits database table
+        uses the lowercase name, so that is what will be used.
+
+        The username will also be converted to lowercase and stored as such
+        as this is only used internally.
+        :return: A boolean value indicating whether we should skip this link
+        """
         if self.skip:
             return True
 
@@ -273,9 +286,11 @@ class Link:
             self.skip = True
             return True
 
+        # TODO: convert database
+
         cur.execute(
             "SELECT * FROM subreddits WHERE name = ? AND skip_link = ? LIMIT 1",
-            (self.subreddit, True))
+            (self.subreddit.lower(), True))
 
         if cur.fetchone():
             self.skip = True
@@ -332,7 +347,7 @@ class Notification:
     def set_language(self):
         query = cur.execute(
             "SELECT language FROM subreddits WHERE name = ?",
-            (self.source.subreddit,))
+            (self.source.subreddit.lower(),))
         lang = query.fetchone()
         if lang is None:
             lang = [DEFAULT_LANG]
@@ -390,7 +405,8 @@ Source: {}
 
         footer_links = i18n.get("infolink").format(info=INFO_LINK,
                                                    contact=CONTACT_LINK,
-                                                   translation=TRANSLATION_ERROR_LINK)
+                                                   translation=TRANSLATION_ERROR_LINK,
+                                                   language=i18n.name)
         parts = []
 
         parts.append(i18n.get("linkingnotification"))
@@ -451,10 +467,11 @@ class Totes:
                 else:
                     log.error(str(e))
                 db.rollback()
-                log.debug("Something wrong with source: {}".format(submission.permalink))
+                log.debug("Something wrong with source: {}".format(
+                    submission.name))
                 continue
 
-            log.debug("Got source: {}".format(submission.url))
+            log.debug("Got source: {}".format(submission.name))
 
             source.check_skip()
             source.save()
@@ -465,10 +482,11 @@ class Totes:
             except RECOVERABLE_EXC as e:
                 log_error(e)
                 db.rollback()
-                log.debug("Something wrong with link: {}".format(submission.permalink))
+                log.debug("Something wrong with link: {}".format(
+                    submission.name))
                 continue
 
-            log.debug("Got link: {}".format(submission.permalink))
+            log.debug("Got link: {}".format(submission.name))
 
             link.check_skip()
             link.save()
