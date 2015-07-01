@@ -8,7 +8,6 @@ DEBUG = environ.get("DEBUG", "false") == "true"
 DB_FILE = environ.get("DATABASE", "totes.sqlite3")
 
 # Posting settings
-ARCHIVE_TIME = 6 * 30 * 24 * 60 * 60  # currently 6 months (in seconds)
 POST_TIME = 2 * 60  # how long to wait until we should post (2 minutes in secs.)
 LINKS_BEFORE_TITLE_CUTOFF = 40
 TITLE_LIMIT = 140 - 3  # title character limit - 1 (for ellipsis)

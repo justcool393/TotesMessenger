@@ -172,6 +172,10 @@ class Source:
             self.skip = True
             return True
 
+        if self.submission.archived:  # skip if source is archived
+            self.skip = True
+            return True
+
         return False
 
     def save(self):
@@ -225,6 +229,7 @@ class Source:
     def _parse_path(self):
         # Comments have path /r/sub/comments/xxx/title/xxx/
         # Posts have path /r/sub/comments/xxx/title/
+        # TODO: Link when "/r/sub/" is not included in path
         match = PATH_REGEX.match(self.path)
 
         if match:
