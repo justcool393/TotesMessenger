@@ -350,12 +350,18 @@ class Notification:
         self.links = []
 
     def set_language(self):
+        source_subreddit = self.source.subreddit.lower()
+
         query = cur.execute(
             "SELECT language FROM subreddits WHERE name = ?",
-            (self.source.subreddit.lower(),))
+            (source_subreddit,))
         lang = query.fetchone()
         if lang is None:
-            lang = [DEFAULT_LANG]
+            try:
+                lang = [r.get_subreddit(source_subreddit).lang]
+            except RECOVERABLE_EXC as e:
+                log_error(e)
+                lang = [DEFAULT_LANG]  # use default if reddit fails
 
         try:
             i18n.setlang(lang[0])
