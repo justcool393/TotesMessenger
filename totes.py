@@ -415,6 +415,7 @@ Source: {}
         self.set_language()
 
         translation_link = TRANSLATION_ERROR_LINK.format(language=i18n.name)
+        translation_link = translation_link.replace(" ", "%20")
 
         footer_links = i18n.get("infolink").format(info=INFO_LINK,
                                                    contact=CONTACT_LINK,
