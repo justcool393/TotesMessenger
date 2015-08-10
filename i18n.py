@@ -37,6 +37,12 @@ class I18n:
         if langcode not in self.translations:
             raise TranslationNotFoundException(langcode)
 
+    @property
+    def name(self):
+        if self._langcode is None:
+            return None
+        return self.translations[self._langcode].name
+
 
 class Translation:
     def __init__(self, code, file, path=None):
