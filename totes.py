@@ -68,7 +68,7 @@ def escape_title(title):
     :param title: Title to escape
     :return: A escaped title
     """
-    escaped = "\\*[]^`_~"
+    escaped = "\\*[]^`_~/"
     for s in escaped:
         title = title.replace(s, "\\" + s)
     return title
