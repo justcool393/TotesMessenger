@@ -22,4 +22,4 @@ LIMIT = int(environ.get("LIMIT", 25))  # how many posts done per cycle
 INFO_LINK = "/r/TotesMessenger"
 CONTACT_LINK = "/message/compose?to=/r/TotesMessenger"
 TRANSLATION_ERROR_LINK = CONTACT_LINK + "&subject=translation error " \
-                                        "({language})"
+                                        "({language}\)"
