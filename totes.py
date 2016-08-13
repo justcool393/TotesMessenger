@@ -68,7 +68,7 @@ def escape_title(title):
     :param title: Title to escape
     :return: A escaped title
     """
-    escaped = "*[]^`_~\\"
+    escaped = "\\*[]^`_~/"
     for s in escaped:
         title = title.replace(s, "\\" + s)
     return title
@@ -419,9 +419,12 @@ Source: {}
     def _render_comment(self):
         self.set_language()
 
+        translation_link = TRANSLATION_ERROR_LINK.format(language=i18n.name)
+        translation_link = translation_link.replace(" ", "%20")
+
         footer_links = i18n.get("infolink").format(info=INFO_LINK,
                                                    contact=CONTACT_LINK,
-                                                   translation=TRANSLATION_ERROR_LINK,
+                                                   translation=translation_link,
                                                    language=i18n.name)
         parts = []
 
