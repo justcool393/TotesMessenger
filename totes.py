@@ -283,6 +283,11 @@ class Link:
         if self.skip:
             return True
 
+        if self.source.subreddit == "subredditsimulator" and self.subreddit \
+                != "subredditsimmeta":
+            self.skip = True
+            return True
+
         cur.execute(
             "SELECT * FROM users WHERE name = ? AND skip_link = ? LIMIT 1",
             (self.author, True))

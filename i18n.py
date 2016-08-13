@@ -45,7 +45,12 @@ class Translation:
         self.code = code
         self.file = file
         self.alltext = self.read_from_file(path)
-        self.name = self.get("language")
+        try:
+            self.name = self.get("language")
+        except StringNotFoundException as e:
+            from totes import log
+            log.error(str(e))
+            self.name = "Unknown"
 
     def read_from_file(self, path):
         file = codecs.open(path + "/" + self.code + ".i18n", 'r',
