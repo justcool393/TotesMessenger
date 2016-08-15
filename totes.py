@@ -283,11 +283,6 @@ class Link:
         if self.skip:
             return True
 
-        if self.source.subreddit == "subredditsimulator":
-            if self.subreddit != "subredditsimmeta":
-                self.skip = True
-                return True
-
         cur.execute(
             "SELECT * FROM users WHERE name = ? AND skip_link = ? LIMIT 1",
             (self.author, True))
@@ -512,6 +507,9 @@ class Totes:
 
             skip_any = source.skip or link.skip
             any_new = source.is_new or link.is_new
+
+            if source.subreddit == "subredditsimulator" and link.subreddit != "subredditsimmeta":
+                skip_any = True
 
             log.debug("Skip any: {}".format(skip_any))
             log.debug("Any new: {}".format(any_new))
