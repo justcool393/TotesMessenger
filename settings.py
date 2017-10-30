@@ -4,6 +4,8 @@ from os import environ
 TEST = environ.get("TEST", "false") == "true"
 DEBUG = environ.get("DEBUG", "false") == "true"
 
+USER_AGENT = 'TotesMessenger v0.6 by /u/justcool393 and /u/cmd-t'
+
 # Database file
 DB_FILE = environ.get("DATABASE", "totes.sqlite3")
 
