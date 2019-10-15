@@ -1,14 +1,16 @@
 import ftplib
 import logging
-import praw
 import os
+import praw
 import re
-import sys
+import requests
 import sqlite3
+import sys
 import time
 import traceback
 
 from praw.exceptions import APIException, ClientException, PRAWException
+from requests.exceptions import RequestException
 
 # Internationalization stuff
 from i18n import TranslationException, I18n, DEFAULT_LANG
@@ -436,13 +438,14 @@ Source: {}
 
 class Totes:
 
-    def __init__(self, username, password, client_id, client_secret, user_agent, limit=25):
+    def __init__(self, username, password, client_id, client_secret, user_agent, limit=25, snitch_url=None):
         self.username = username
         self.password = password
         self.client_id = client_id
         self.client_secret = client_secret
         self.user_agent = user_agent
         self.limit = limit
+        self.snitch_url = snitch_url
 
         self._setup = False
 
@@ -458,12 +461,16 @@ class Totes:
 
         sources = set()
 
-        submissions = self.reddit.domain('reddit.com').new(limit=self.limit)
+        submissions = list(self.reddit.domain('reddit.com').new(limit=self.limit))
+
+
+        log.debug("Got {} new submissions".format(len(submissions)))
 
         for submission in submissions:
             now = datetime.now(timezone.utc).timestamp()
 
             if now - submission.created_utc < POST_TIME:
+                log.debug("Skipping, too new")
                 continue  # skip if our post is less than POST_TIME (2 min) old
 
             try:
@@ -522,6 +529,14 @@ class Totes:
                     db.rollback()
                     continue
 
+        if self.snitch_url:
+            try:
+                log.info("Snitchin'...")
+                requests.get(self.snitch_url)
+            except RequestException as e:
+                log.warn("Couldn't snitch")
+                log_error(e)
+
         log.info("Done.")
 
     def setup(self):
@@ -557,8 +572,9 @@ if __name__ == "__main__":
     password = os.environ.get("REDDIT_PASSWORD")
     client_id = os.environ.get("REDDIT_CLIENT_ID")
     client_secret = os.environ.get("REDDIT_CLIENT_SECRET")
+    snitch_url = os.environ.get("SNITCH_URL")
 
-    totes = Totes(username, password, client_id, client_secret, USER_AGENT, LIMIT)
+    totes = Totes(username, password, client_id, client_secret, USER_AGENT, LIMIT, snitch_url=snitch_url)
 
     totes.setup()
 
